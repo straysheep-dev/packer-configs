@@ -45,6 +45,9 @@ Ultimately these files aren't really sensitive, as you should be using Ansible o
 
 This template also requires a prebuilt **seed.img** ISO file using `genisoimage` rather than serving the cloud-init config over http. To do this, from this template directory:
 
+> [!IMPORTANT]
+> Change or remove the example SSH public key string from `http/user-data`.
+
 ```bash
 # https://cloudinit.readthedocs.io/en/latest/howto/launch_qemu.html#create-an-iso-disk
 sudo apt update; sudo apt install -y genisoimage

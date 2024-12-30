@@ -1,4 +1,4 @@
-# ubuntu-2204.pkr.hcl
+# ubuntu-2204-desktop.pkr.hcl
 
 # [Packer Block: Packer](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/packer)
 packer {
@@ -15,7 +15,7 @@ packer {
 }
 
 # [Packer Block: Source](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/source)
-source "qemu" "ubuntu-2204" {
+source "qemu" "ubuntu-2204-desktop" {
   vm_name           = "${local.vm_name}"
 
   iso_target_path   = "${var.iso_storage_path}"

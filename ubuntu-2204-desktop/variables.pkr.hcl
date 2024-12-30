@@ -9,7 +9,7 @@ variable "iso_storage_path" {
 }
 
 locals {
-  vm_name = "ubuntu-2204"
+  vm_name = "ubuntu-2204-desktop"
 
   # [ISO Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#iso-configuration)
   # The iso_target_path is where the ISO file is saved to disk locally.
