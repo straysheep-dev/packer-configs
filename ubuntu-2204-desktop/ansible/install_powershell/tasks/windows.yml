@@ -1,0 +1,31 @@
+---
+# install_powershell/tasks/windows.yml
+
+# https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4#install-powershell-using-winget-recommended
+
+- name: Check winget version
+  ansible.windows.win_powershell:
+    script: |
+      if (winget --version) { echo "OK" }
+    executable: powershell.exe
+  register: winget_version
+  failed_when:
+    - winget_version.output[0] != "OK"
+
+- name: Install PowerShell (latest) with winget
+  ansible.windows.win_powershell:
+    script: |
+      winget install --id Microsoft.Powershell --source winget
+    executable: powershell.exe
+
+# It may not be available in your $env:PATH right after install
+- name: Check new PowerShell version
+  ansible.windows.win_powershell:
+    script: |
+      $PSVersionTable.PSVersion
+    executable: C:\Program Files\PowerShell\7\pwsh.exe
+  register: pwsh_version
+
+- name: Print new PowerShell version
+  ansible.builtin.debug:
+    var: pwsh_version.output
