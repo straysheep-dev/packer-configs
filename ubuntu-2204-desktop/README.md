@@ -2,6 +2,18 @@
 
 A packer template for a standard Ubuntu 22.04 Desktop.
 
+> [!IMPORTANT]
+> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This will be fixed in the next update.
+
+For now, this is a temporary fix to resolve this after building.
+
+```bash
+sudo rm /etc/netplan/00-installer-config*yaml
+echo "network:
+  version: 2
+  renderer: NetworkManager" | sudo tee /etc/netplan/01-network-manager-all.yaml
+```
+
 
 ## References
 
@@ -91,4 +103,4 @@ kvm -no-reboot -m 4096 -smp 4\
 
 ```
 
-You can also simply point to the disk file with virt-manager or any other hypervisor that can read qcow2 images. Otherwise convert the image with qemu utils and import it.
+You can also simply point to the disk and efivars file with virt-manager as described [here](../README.md#run-completed-builds-with-virt-manager), or any other hypervisor that can read qcow2 images. Otherwise convert the image with qemu utils and import it.

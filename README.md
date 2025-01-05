@@ -29,7 +29,7 @@ A list of resources used to create these templates.
 - You can move these to a more standard path like `~/iso` or `~/src/my-project/ubuntu-2204/iso/`
 - This means you can even tell packer to save ISOs it fetches to that path instead of cache
 - You can also tell packer to try a local file first before fetching the remote file
-- If you intend to use virt-manager, the path for disk img files is `/var/lib/libvirt/images/`
+- If you intend to use virt-manager, the path for those files is `/var/lib/libvirt/`
 
 **Using Packer**
 
@@ -151,3 +151,42 @@ kvm -no-reboot -m 4096 -smp 4\
   -display gtk
 
 ```
+
+
+## Run Completed Builds with virt-manager
+
+Move the VM disk image and EFI variables into the correct virt-manager paths.
+
+```bash
+sudo cp build/ubuntu-2204-desktop /var/lib/libvirt/images/ubuntu-2204-desktop.qcow2
+sudo cp build/efivars.fd /var/lib/libvirt/qemu/nvram/ubuntu-2204-desktop_VARS.fd
+```
+
+Set the ownership to `libvirt-qemu:kvm` (this was done on an Ubuntu host, your user:group may be different).
+
+```bash
+sudo chown libvirt-qemu:kvm /var/lib/libvirt/images/ubuntu-2204-desktop.qcow2
+sudo chown libvirt-qemu:kvm /var/lib/libvirt/qemu/nvram/ubuntu-2204-desktop_VARS.fd
+```
+
+Now open the virt-manager GUI.
+
+- Set `Q35` for the CPU chipset
+- Select UEFI firmware and choose the `OVMF_CODE_4M.secboot.fd` ROM
+
+You will need to manually edit the `<os>` element of the XML config under CPU (or Overview).
+
+The `<nvram>` line is what you'll need to add. Change the NVRAM path to point to the variables file you just copied over.
+
+```xml
+  <os>
+    <type arch="x86_64" machine="q35">hvm</type>
+    <loader readonly="yes" secure="yes" type="pflash">/usr/share/OVMF/OVMF_CODE_4M.secboot.fd</loader>
+    <nvram template="/usr/share/OVMF/OVMF_VARS_4M.ms.fd">/var/lib/libvirt/qemu/nvram/ubuntu-2204-desktop_VARS.fd</nvram>
+    <boot dev="hd"/>
+  </os>
+```
+
+Apply, then choose "Begin installation". This will boot the VM. You will likely have a blank window after the initial QEMU boot splash screen. The easiest thing to do here is click into the blank window and press the `esc` key to cycle through the console output until you get the GUI. You can also try to close / reopen the VM window. If this doesn't fix the video output, shutdown the VM with the CLI or virt-manager tools and then close / reopen the window. You should have video output at this point.
+
+Another issue you may encounter is when you install a desktop image onto a server VM, the networking configuration may need revised to work automatically as expected. This happened in the case of the first config in this repo, [ubuntu-2204-desktop](./ubuntu-2204-desktop/).
