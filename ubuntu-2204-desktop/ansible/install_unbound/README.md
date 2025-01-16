@@ -1,7 +1,34 @@
 install_unbound
 =========
 
-This role installs the unboud DNS resolver with a hardened configuration file based on pfSense's defaults. It also enables DNS logging along with DNS over TLS to cloudflare and quad9 by default.
+This role installs the Unboud DNS resolver with a hardened configuration file based on pfSense's defaults. It also enables DNS logging along with DNS over TLS to the DNS resolver(s) of your choice defined in `defaults/main.yml`. By default this includes Cloudflare and Quad9. Options for Google and NextDNS are also available.
+
+
+### DNS Setup
+
+**Cloudflare**
+
+- [Setup](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-tls/)
+- [Verify](https://one.one.one.one/help)
+
+**Quad9**
+
+- [Setup](https://docs.quad9.net/services/)
+- [Verify](https://docs.quad9.net/FAQs/)
+
+**Google**
+
+- [Setup](https://developers.google.com/speed/public-dns/docs/dns-over-tls)
+- [Verify](https://developers.google.com/speed/public-dns/docs/using#testing)
+
+**NextDNS**
+
+- [Profile](https://nextdns.io/)
+- [Setup](https://github.com/nextdns/nextdns/wiki/pfSense)
+- [Verify](https://test.nextdns.io/)
+
+
+### Reading Logs
 
 You can follow logs with `tail` on Ubuntu:
 
@@ -66,7 +93,10 @@ systemd=true
 Role Variables
 --------------
 
-None.
+You'll want to set these in your inventory files.
+
+- `dns_resolvers: ["cloudflare", "quad9"]` List of DNS resolvers to use. NextDNS requires a profile string. Options: google, cloudflare, quad9, nextdns
+- `nextdns_profile: null` Replace `null` with your NextDNS profile ID string in quotes.
 
 Dependencies
 ------------

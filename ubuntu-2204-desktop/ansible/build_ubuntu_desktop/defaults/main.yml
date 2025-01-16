@@ -1,0 +1,6 @@
+---
+# defaults file for build_ubuntu_desktop
+
+# Choose which desktop to install onto a server image.
+# See vars/main.yml for a complete list of options.
+desktop_package: "ubuntu-desktop-minimal"

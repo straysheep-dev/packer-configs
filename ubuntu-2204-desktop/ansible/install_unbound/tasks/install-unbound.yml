@@ -1,9 +1,16 @@
 ---
 # install_unbound/tasks/install-unbound.yml
 
-# This will install unbound with a hardened configuration file based on the defaults in pfSense, along with DNS logging and DNS over TLS using quad9 and cloudflare.
-# Ansible will attempt to stop and disable the built in systemd-resolved service. Should a different DNS resolver be bound to port 53, ansible will fail to start unbound and alert the user.
-# Set verbosity: to 2, 3, or 4 in unbound.conf, then check sudo journalctl -xeu unbound, as well as sudo unbound-checkconf and sudo ss -anp -A inet to help you diagnose any errors.
+# This will install unbound with a hardened configuration file based on the defaults in pfSense, along with DNS logging and DNS over TLS.
+# Ansible will attempt to stop and disable the built in systemd-resolved service. Should a different DNS resolver be bound to port 53,
+# ansible will fail to start unbound and alert the user.
+# Set verbosity: to 2, 3, or 4 in unbound.conf, then check:
+# $ sudo journalctl -xeu unbound
+# ...and:
+# $ sudo unbound-checkconf
+# ...and:
+# $ sudo ss -anp -A inet
+# ...to help you diagnose any errors.
 
 # copy: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html#ansible-collections-ansible-builtin-copy-module
 # service: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html#ansible-collections-ansible-builtin-service-module
@@ -15,6 +22,9 @@
 # register with a loop: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#registering-variables-with-a-loop
 # notify: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html#notifying-handlers
 # conditionals: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
 
 - name: Set unbound conf path for Debian/Ubuntu
   ansible.builtin.set_fact:
@@ -32,19 +42,19 @@
       - unbound
       - unbound-anchor
       - dns-root-data
-    update_cache: yes
+    update_cache: true
   when: ansible_facts['os_family'] == "Debian"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Install Unbound (RedHat / Fedora)
   ansible.builtin.dnf:
     pkg:
       - unbound
-    update_cache: yes
+    update_cache: true
   when: ansible_facts['os_family'] == "RedHat"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Remove any existing root.key file
   ansible.builtin.file:
@@ -52,8 +62,8 @@
     state: absent
   when: (ansible_facts['os_family'] == "RedHat") or
         (ansible_facts['distribution'] == "Kali")
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Install root.key for unbound (RedHat / Fedora / Kali)
   ansible.builtin.shell: |
@@ -63,30 +73,36 @@
     executable: /bin/bash
   when: (ansible_facts['os_family'] == "RedHat") or
         (ansible_facts['distribution'] == "Kali")
-  become: yes
-  become_method: sudo
-  ignore_errors: yes
-
-- name: Register if systemd-resolved is enabled
-  ansible.builtin.shell: systemctl is-enabled systemd-resolved
-  register: systemd_resolved_status
+  become: true
+  become_method: ansible.builtin.sudo
   ignore_errors: true
 
 - name: Stop and disable systemd-resolved
   ansible.builtin.service:
     name: systemd-resolved
     state: stopped
-    enabled: no
-  when: systemd_resolved_status.stdout == 'enabled'
-  become: yes
-  become_method: sudo
+    enabled: false
+  when: (ansible_facts['services']['systemd-resolved.service']['status'] is not none) and
+        (ansible_facts['services']['systemd-resolved.service']['status'] == "enabled")
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Ensure optional conf path exists
+  ansible.builtin.file:
+    path: "{{ unbound_confs_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "755"
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Find existing optional Unbound configuration files
   ansible.builtin.find:
     paths: "{{ unbound_confs_path }}"
     file_type: file
     patterns: '*.conf'
-    recurse: yes
+    recurse: true
   register: optional_confs_old
 
 - name: Remove existing Unbound optional configuration files
@@ -94,8 +110,8 @@
     path: "{{ item.path }}"
     state: absent
   loop: "{{ optional_confs_old.files }}"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Apply new Unbound configuration files
   ansible.builtin.copy:
@@ -104,20 +120,24 @@
     owner: root
     group: root
     mode: '0644'
-    remote_src: no
+    remote_src: false
   with_items:
     - { src: 'unbound.conf', dest: '/etc/unbound/unbound.conf' }
     - { src: 'unbound.conf.d/unbound-dns-over-tls.conf', dest: '{{ unbound_confs_path }}/unbound-dns-over-tls.conf' }
     - { src: 'unbound.conf.d/unbound-logging.conf', dest: '{{ unbound_confs_path }}/unbound-logging.conf' }
-  notify: Restart Unbound
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
+
+# This will write the selected resolver configuration blocks listed in defaults/main.yml
+# to {{ unbound_confs_path }}/unbound-dns-over-tls.conf
+- name: Configure DNS Resolvers
+  include_tasks: configure-dns.yml
 
 - name: Register new unbound conf files
   ansible.builtin.find:
     paths: /etc/unbound/
     patterns: "*.conf"
-    recurse: yes
+    recurse: true
   register: unbound_confs
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/replace_module.html
@@ -129,8 +149,8 @@
   loop:
     "{{ unbound_confs.files }}"
   when: ansible_facts['os_family'] == "Debian"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/replace_module.html
 - name: Format conf files for OS (RedHat / Fedora)
@@ -141,8 +161,8 @@
   loop:
     "{{ unbound_confs.files }}"
   when: ansible_facts['os_family'] == "RedHat"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Create chroot dir (RedHat / Fedora)
   ansible.builtin.file:
@@ -152,8 +172,8 @@
     group: unbound
     mode: '0755'
   when: ansible_facts['os_family'] == "RedHat"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Set chroot dir (RedHat / Fedora)
   ansible.builtin.lineinfile:
@@ -164,49 +184,75 @@
   loop:
     "{{ unbound_confs.files }}"
   when: ansible_facts['os_family'] == "RedHat"
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Check Unbound configurations
   ansible.builtin.shell: unbound-checkconf
   args:
     executable: /bin/bash
-  become: yes
-  become_method: sudo
+  notify: Restart Unbound
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Start and enable Unbound
   ansible.builtin.service:
     name: unbound
     state: started
-    enabled: yes
-  become: yes
-  become_method: sudo
+    enabled: true
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Get stats of current resolv.conf
+  ansible.builtin.stat:
+    path: /etc/resolv.conf
+  register: st
+
+# https://www.jeffgeerling.com/blog/2019/how-idempotently-change-file-attributes-eg-immutable-ansible
+- name: Remove immutable attribute
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    attributes: -i
+  register: resolv_attrs
+  changed_when: "'i' in resolv_attrs.diff.before.attributes"
+  when: ("immutable" in st.stat.attributes)
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Remove the managed symlink at /etc/resolv.conf (managed by systemd-resolved)
   ansible.builtin.file:
     path: /etc/resolv.conf
     state: absent
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
-- name: Apply a new /etc/resolv.conf (Kali)
+- name: Apply a new /etc/resolv.conf (Debian / Ubuntu)
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: root
     group: root
     mode: '0644'
-    remote_src: no
+    remote_src: false
   with_items:
     - { src: 'resolv.conf', dest: '/etc/resolv.conf' }
-  when: ansible_facts['distribution'] == "Kali"
-  become: yes
-  become_method: sudo
+  when: ansible_facts['os_family'] == "Debian"
+  become: true
+  become_method: ansible.builtin.sudo
 
-- name: Make new /etc/resolv.conf immutable (Kali)
-  ansible.builtin.shell: chattr +i /etc/resolv.conf
-  args:
-    executable: /bin/bash
-  when: ansible_facts['distribution'] == "Kali"
-  become: yes
-  become_method: sudo
+- name: Get stats of new resolv.conf
+  ansible.builtin.stat:
+    path: /etc/resolv.conf
+  register: st
+
+# https://www.jeffgeerling.com/blog/2019/how-idempotently-change-file-attributes-eg-immutable-ansible
+- name: Make new /etc/resolv.conf immutable (Debian / Ubuntu)
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    attributes: +i
+  register: resolv_attrs
+  changed_when: "'i' in resolv_attrs.diff.before.attributes"
+  when: (ansible_facts['os_family'] == "Debian") and
+        ("immutable" not in st.stat.attributes)
+  become: true
+  become_method: ansible.builtin.sudo

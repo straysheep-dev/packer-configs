@@ -49,8 +49,8 @@ locals {
   # [Qemu Configurations](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#qemu-specific-configuration-reference)
   #machine_type     = "q35" # As of now, q35 is required for secure boot to be enabled
   #accelerator      = "kvm" # This may be none, kvm, tcg, hax, hvf, whpx, or xen
-  memory           = 4096 # 4096 is a good size for testing, use 8192 or more for a persistent desktop
-  disk_size        = "16G" # 16G is a good size for testing, use 32G or 64G for a persistent VM, you can always attach more virtual disks
+  memory           = 8192 # 4096 is a good size for testing, use 8192 or more for a persistent desktop
+  disk_size        = "64G" # 16G is a good size for testing, use 32G or 64G for a persistent VM, you can always attach more virtual disks
   disk_discard     = "ignore" # unmap or ignore, default is ignore
   disk_compression = true # Apply compression to the QCOW2 disk file using qemu-img convert. Defaults to false.
   format           = "qcow2" # Either qcow2 or raw

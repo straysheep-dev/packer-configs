@@ -20,8 +20,10 @@ exclude_paths:
   - "*/meta/"                 # ignore meta/ folder for all roles
   - "ubuntu-2204-desktop/ansible"
 
+# Process the following rules as warnings, and not fatal errors, globally
 warn_list:
   - yaml[line-length]
+  - package-latest
 #  - schema[playbook]
 
 # Offline mode disables installation of requirements.yml and schema refreshing

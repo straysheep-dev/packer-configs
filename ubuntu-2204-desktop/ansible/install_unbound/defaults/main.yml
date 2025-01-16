@@ -1,2 +1,9 @@
 ---
 # defaults file for install_unbound
+
+# Options: google, cloudflare, quad9, nextdns
+dns_resolvers: ["cloudflare", "quad9"]
+
+# Replace `null` with your profile string and this role will point
+# unbound's resolver to your NextDNS profile.
+nextdns_profile: null

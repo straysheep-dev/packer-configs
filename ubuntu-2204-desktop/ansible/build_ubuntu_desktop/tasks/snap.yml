@@ -1,0 +1,69 @@
+---
+# build_ubuntu_desktop/tasks/snap.yml
+
+# Install a selection of snap packages, typically for a host
+- name: Install snap Packages (Host)
+  ansible.builtin.shell: |
+    snap refresh
+    snap install bitwarden
+    snap install remmina
+  args:
+    executable: /bin/bash
+  when: ansible_facts["virtualization_role"] != "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Install a selection of snap packages, typically for a guest VM
+- name: Install snap Packages (VM Guest)
+  ansible.builtin.shell: |
+    snap refresh
+    snap install vlc
+    snap install libreoffice
+  args:
+    executable: /bin/bash
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Adjust their connections, Firefox is a snap package by default now and is always available
+- name: Modify snap Connections (Firefox)
+  ansible.builtin.shell: |
+    snap disconnect firefox:cups-control
+    snap disconnect firefox:removable-media
+    if ! [ "$XDG_SESSION_TYPE" == "x11" ]; then
+      snap disconnect firefox:x11
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Modify snap Connections (LibreOffice)
+  ansible.builtin.shell: |
+    snap connect libreoffice:removable-media
+    snap disconnect libreoffice:bluez
+    snap disconnect libreoffice:network
+    snap disconnect libreoffice:network-bind
+    if ! [ "$XDG_SESSION_TYPE" == "x11" ]; then
+      snap disconnect libreoffice:x11
+    fi
+  args:
+    executable: /bin/bash
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Modify snap Connections (VLC)
+  ansible.builtin.shell: |
+    snap connect vlc:removable-media
+    snap disconnect vlc:avahi-control
+    snap disconnect vlc:network
+    snap disconnect vlc:network-bind
+    if ! [ "$XDG_SESSION_TYPE" == "x11" ]; then
+      snap disconnect vlc:x11
+    fi
+  args:
+    executable: /bin/bash
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo

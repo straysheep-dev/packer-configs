@@ -1,0 +1,36 @@
+---
+# install_unbound/tasks/configure-dns.yml
+
+# Check to ensure nextdns_profile is not null if using NextDNS resolvers
+- name: Validate NextDNS profile string
+  ansible.builtin.fail:
+    msg: NextDNS configured, but profile string is null.
+  when: ('nextdns' in dns_resolvers) and
+        (nextdns_profile == null)
+
+# This is the task block to dynamically populate your DNS resolvers based on your choices in
+# defaults/main.yml using lookup() to read the text files of the same names under files/.
+# See the example "Insert/Update configuration using a local file and validate it" with lookup
+# here: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+- name: Append selected DNS resolver configuration blocks
+  ansible.builtin.blockinfile:
+    path: "{{ unbound_confs_path }}/unbound-dns-over-tls.conf"
+    owner: root
+    group: root
+    mode: "644"
+    prepend_newline: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+    block: "{{ lookup('ansible.builtin.file', item) }}"
+  loop: "{{ dns_resolvers }}"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Replace the placeholder lines for NextDNS with the profile string
+- name: Write NextDNS profile string
+  ansible.builtin.replace:
+    path: "{{ unbound_confs_path }}/unbound-dns-over-tls.conf"
+    regexp: 'profile_id'
+    replace: "{{ nextdns_profile }}"
+  when: (nextdns_profile is not none)
+  become: true
+  become_method: ansible.builtin.sudo

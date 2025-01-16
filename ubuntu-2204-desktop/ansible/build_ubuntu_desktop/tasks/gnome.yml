@@ -1,0 +1,25 @@
+---
+# build_ubuntu_desktop/tasks/gnome.yml
+
+# Configure GNOME desktop settings with dconf / gsettings
+- name: Install GNOME configuration scripts
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: /usr/local/bin/
+    mode: '0755'
+    owner: root
+    group: root
+  loop:
+    - "dconf.sh"
+    - "gsettings.sh"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Run GNOME configuration scripts (user)
+  ansible.builtin.command: /usr/local/bin/gsettings.sh
+
+- name: Run GNOME configuration scripts (system)
+  ansible.builtin.command: /usr/local/bin/dconf.sh
+  become: true
+  become_method: ansible.builtin.sudo

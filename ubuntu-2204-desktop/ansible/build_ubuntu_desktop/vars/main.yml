@@ -1,0 +1,15 @@
+---
+# vars file for build_ubuntu_desktop
+
+# List of all available desktop packages in the default Ubuntu repos.
+# We iterate through these to ensure one doesn't already exist before
+# installing one.
+desktop_package_list:
+  - edubuntu-desktop
+  - edubuntu-desktop-minimal
+  - kubuntu-desktop
+  - lubuntu-desktop
+  - ubuntu-desktop
+  - ubuntu-desktop-minimal
+  - xubuntu-desktop
+  - xubuntu-desktop-minimal

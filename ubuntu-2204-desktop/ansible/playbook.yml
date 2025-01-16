@@ -19,8 +19,12 @@
     # remotegroup
   roles:
     # Uncomment roles to run
+    - role: "build_ubuntu_desktop"
     - role: "configure_gnupg"
     - role: "configure_microsoft_repos"
+    - role: "install_chrome"
     - role: "install_powershell"
     - role: "install_sysmon"
     - role: "install_unbound"
+    - role: "install_vscode"
+    - role: "install_ykman"

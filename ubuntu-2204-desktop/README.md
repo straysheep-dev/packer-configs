@@ -3,12 +3,10 @@
 A packer template for a standard Ubuntu 22.04 Desktop.
 
 > [!IMPORTANT]
-> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This will be fixed in the next update.
-
-For now, this is a temporary fix to resolve this after building.
+> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This has been fixed in the ansible role build_ubuntu_desktop.
 
 ```bash
-sudo rm /etc/netplan/00-installer-config*yaml
+sudo rm /etc/netplan/00-installer-config*.yaml
 echo "network:
   version: 2
   renderer: NetworkManager" | sudo tee /etc/netplan/01-network-manager-all.yaml
@@ -95,7 +93,7 @@ kvm -no-reboot -m 4096 -smp 4\
   -device virtio-net-pci,netdev=net0 \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -object rng-random,filename=/dev/urandom,id=rng0 \
-  -drive file=ubuntu-2204,format=qcow2,if=virtio \
+  -drive file=ubuntu-2204-desktop,format=qcow2,if=virtio \
   -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
   -drive if=pflash,format=raw,file=efivars.fd \
   -vga virtio \
@@ -104,3 +102,5 @@ kvm -no-reboot -m 4096 -smp 4\
 ```
 
 You can also simply point to the disk and efivars file with virt-manager as described [here](../README.md#run-completed-builds-with-virt-manager), or any other hypervisor that can read qcow2 images. Otherwise convert the image with qemu utils and import it.
+
+Finally, you can automate importing the build into virt-manager with `import-to-virt-manager.sh`. This will import it, shut it down, and take an initial snapshot.

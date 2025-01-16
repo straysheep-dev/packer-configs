@@ -190,3 +190,11 @@ The `<nvram>` line is what you'll need to add. Change the NVRAM path to point to
 Apply, then choose "Begin installation". This will boot the VM. You will likely have a blank window after the initial QEMU boot splash screen. The easiest thing to do here is click into the blank window and press the `esc` key to cycle through the console output until you get the GUI. You can also try to close / reopen the VM window. If this doesn't fix the video output, shutdown the VM with the CLI or virt-manager tools and then close / reopen the window. You should have video output at this point.
 
 Another issue you may encounter is when you install a desktop image onto a server VM, the networking configuration may need revised to work automatically as expected. This happened in the case of the first config in this repo, [ubuntu-2204-desktop](./ubuntu-2204-desktop/).
+
+
+### Automate with virt-install
+
+Inside each packer template folder is an `import-to-virt-manager.sh` file that will automate the steps above for you.
+
+- [RedHat: Creating Guest VMs with `virt-install`](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-guest_virtual_machine_installation_overview-creating_guests_with_virt_install)
+- [RedHat: Comparison of virt-manager and virt-install Options](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-virtual_machine_installation-virt-install-virt-manager-matrix)

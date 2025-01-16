@@ -1,0 +1,5 @@
+---
+# vars file for install_vscode
+
+# Configure whether to use the snap package manager, mainly for Ubuntu
+prefer_snap: "false"
