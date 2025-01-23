@@ -14,8 +14,9 @@ crash.log
 #
 *.pkrvars.hcl
 
-# For built boxes
+# For build files and machine images
 *.box
+build/
 
 # For cloud-init ISO images created with genisoimage
 seed.img

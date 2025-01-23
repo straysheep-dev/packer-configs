@@ -19,6 +19,10 @@ vm_vcpus='4'
 vm_memory='8192'
 vm_net='default'
 
+if virsh list --all | grep -Pq "$vm_name"; then
+  echo "[*]WARNING: a virtual machine matching \"$vm_name\" already exists. Exiting..."
+fi
+
 if ! [ -d ./build ]; then
   echo "[*]Change to packer template directory before executing."
   exit

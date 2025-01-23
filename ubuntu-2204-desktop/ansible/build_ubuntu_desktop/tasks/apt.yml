@@ -20,26 +20,7 @@
 - name: Install apt packages (Default)
   ansible.builtin.apt:
     pkg:
-      - apparmor-profiles
-      - apparmor-profiles-extra
-      - apparmor-utils
-      - cryptsetup
-      - curl
-      - git
-      - hexedit
-      - htop
-      - libimage-exiftool-perl
-      - libpam-google-authenticator
-      - nmap
-      - pcscd
-      - python3-pip
-      - python3-venv
-      - qrencode
-      - resolvconf
-      - scdaemon
-      - screen
-      - tmux
-      - wireguard
+      "{{ apt_packages_install }}"
     state: latest
     update_cache: true
   become: true
@@ -49,10 +30,7 @@
 - name: Install apt packages (Host)
   ansible.builtin.apt:
     pkg:
-      - flameshot
-      - virt-manager
-      - usb-creator-gtk
-      - usbguard
+      "{{ apt_packages_host_install }}"
     state: latest
   when: ansible_facts["virtualization_role"] != "guest"
   become: true
@@ -62,11 +40,7 @@
 - name: Install apt packages (VM)
   ansible.builtin.apt:
     pkg:
-      - dconf-editor
-      - dos2unix
-      - poppler-utils
-      - shellcheck
-      - wireshark
+      "{{ apt_packages_guest_install }}"
     state: latest
   when: ansible_facts["virtualization_role"] == "guest"
   become: true
@@ -76,7 +50,7 @@
 - name: Remove apt Packages
   ansible.builtin.apt:
     pkg:
-      - evince
+      "{{ apt_packages_remove }}"
     autoremove: true
     purge: true
     state: absent

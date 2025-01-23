@@ -13,3 +13,50 @@ desktop_package_list:
   - ubuntu-desktop-minimal
   - xubuntu-desktop
   - xubuntu-desktop-minimal
+
+# List of all packages, installed or removed, based on environment.
+apt_packages_install:
+  - apparmor-profiles
+  - apparmor-profiles-extra
+  - apparmor-utils
+  - cryptsetup
+  - curl
+  - git
+  - hexedit
+  - htop
+  - libimage-exiftool-perl
+  - libpam-google-authenticator
+  - nmap
+  - pcscd
+  - python3-pip
+  - python3-venv
+  - qrencode
+  - resolvconf
+  - scdaemon
+  - screen
+  - shellcheck
+  - tmux
+  - wireguard
+
+apt_packages_remove:
+  - evince
+
+apt_packages_host_install:
+  - flameshot
+  - virt-manager
+  - usb-creator-gtk
+  - usbguard
+
+apt_packages_guest_install:
+  - dconf-editor
+  - dos2unix
+  - poppler-utils
+  - wireshark
+
+snap_packages_host_install:
+  - bitwarden
+  - remmina
+
+snap_packages_guest_install:
+  - vlc
+  - libreoffice

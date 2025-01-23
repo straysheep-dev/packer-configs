@@ -10,7 +10,7 @@
     path: "{{ item }}"
     state: absent
   with_fileglob:
-    - "/etc/netplan/00-installer-config*yaml"
+    - "/etc/netplan/00-installer-config*.yaml"
   become: true
   become_method: ansible.builtin.sudo
 
@@ -21,8 +21,8 @@
     group: root
     mode: '0640'
     content: |
-      "network:
+      network:
         version: 2
-        renderer: NetworkManager"
+        renderer: NetworkManager
   become: true
   become_method: ansible.builtin.sudo

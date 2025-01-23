@@ -1,14 +1,22 @@
 ---
 # build_ubuntu_desktop/tasks/snap.yml
 
+# Update all currently installed snap packages
+- name: Refresh all snap Packages
+  ansible.builtin.shell: |
+    snap refresh
+  args:
+    executable: /bin/bash
+  become: true
+  become_method: ansible.builtin.sudo
+
 # Install a selection of snap packages, typically for a host
 - name: Install snap Packages (Host)
   ansible.builtin.shell: |
-    snap refresh
-    snap install bitwarden
-    snap install remmina
+    snap install {{ item }}
   args:
     executable: /bin/bash
+  loop: "{{ snap_packages_host_install }}"
   when: ansible_facts["virtualization_role"] != "guest"
   become: true
   become_method: ansible.builtin.sudo
@@ -16,11 +24,10 @@
 # Install a selection of snap packages, typically for a guest VM
 - name: Install snap Packages (VM Guest)
   ansible.builtin.shell: |
-    snap refresh
-    snap install vlc
-    snap install libreoffice
+    snap install {{ item }}
   args:
     executable: /bin/bash
+  loop: "{{ snap_packages_guest_install }}"
   when: ansible_facts["virtualization_role"] == "guest"
   become: true
   become_method: ansible.builtin.sudo
