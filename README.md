@@ -1,5 +1,7 @@
 # packer-configs
 
+![packer workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/packer.yml/badge.svg) ![ansible-lint workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/ansible-lint.yml/badge.svg) ![shellcheck workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/shellcheck.yml/badge.svg)
+
 A collection of Packer templates for various uses. These were written in a way that should help you understand `packer` by looking at how they work, and expanding on them.
 
 
