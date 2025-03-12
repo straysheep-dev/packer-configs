@@ -1,0 +1,63 @@
+{
+  "variables": {
+    "vm_name": "",
+    "vm_hostname": "",
+    "iso_urls": "",
+    "iso_checksum": "",
+    "iso_storage_path": ""
+  },
+  "builders": [
+    {
+      "type": "qemu",
+      "vm_name": "{{user `vm_name`}}",
+      "iso_urls": "{{user `iso_urls`}}",
+      "iso_checksum": "sha256:{{user `iso_checksum`}}",
+      "output_directory": "build",
+      "ssh_username": "kali",
+      "ssh_password": "packer",
+      "ssh_timeout": "60m",
+      "cpus": "4",
+      "memory": "4096",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+      "http_directory": "http",
+      "format": "qcow2",
+      "accelerator": "kvm",
+      "disk_interface": "virtio-scsi",
+      "disk_discard": "unmap",
+      "disk_detect_zeroes": "unmap",
+      "disk_cache": "unsafe",
+      "disk_image": false,
+      "disk_compression": true,
+      "disk_size": "24G",
+      "efi_boot": true,
+      "efi_firmware_code": "/usr/share/OVMF/OVMF_CODE_4M.fd",
+      "efi_firmware_vars": "/usr/share/OVMF/OVMF_VARS_4M.fd",
+      "boot_command": [
+        "e<wait>",
+        "<down><down><down><end>",
+        " --- ",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "preseed/url/checksum=c90fd407f89b72924c15a2f50bcec0b3 ",
+        "locale=en_US ",
+        "keymap=us ",
+        "hostname={{user `vm_hostname`]} ",
+        "domain='' ",
+        " --- ",
+        "<f10>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | sudo -S apt update; sudo -S apt full-upgrade -y"
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "./ansible/playbook.yml",
+      "extra_arguments": [
+      "--extra-vars", "ansible_become_password=packer"
+      ]
+    }
+  ]
+}

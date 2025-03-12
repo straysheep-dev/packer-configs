@@ -17,7 +17,7 @@ locals {
   iso_target_path = "${var.iso_storage_path}"
   iso_checksum = "sha256:45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
   iso_urls      = [
-    "${var.iso_storage_path}ubuntu-22.04.4-live-server-amd64.iso",
+    "${var.iso_storage_path}",
     "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
   ]
 
@@ -37,7 +37,7 @@ locals {
   # [SSH Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#optional-ssh-fields:)
   ssh_password         = "ubuntu"
   ssh_username         = "user1"
-  ssh_timeout          = "40m"
+  ssh_timeout          = "60m"
   #ssh_private_key_file = "~/.ssh/id_rsa" # Path to a private key file, you can use ~ in the path string.
 
   # [CPU Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#smp-configuration)

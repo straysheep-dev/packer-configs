@@ -15,7 +15,7 @@
 
 vm_name=''
 dest_path=''
-vm_os='ubuntu22.04'
+vm_os='debian12'
 vm_vcpus='4'
 vm_memory='8192' # 2048, 4096, 8192, 16384
 vm_net='default'
@@ -29,7 +29,7 @@ if [[ "$vm_name" == '' ]]; then
   echo "[*]Please set a vm_name."
   echo ""
   until [[ "$vm_name" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
-    read -rp "[Enter a VM name]: " -e -i 'ubuntu22.04-desktop' vm_name
+    read -rp "[Enter a VM name]: " -e -i 'kali-linux' vm_name
   done
 fi
 
@@ -60,9 +60,9 @@ sudo chown -R libvirt-qemu:kvm "${dest_path}"
 #sudo setfacl -R -m u:libvirt-qemu:rx "${dest_path}"
 
 # Move the VM disk image and EFI variables into the correct virt-manager paths.
-# The build image file name should always be "ubuntu-2204-desktop", we change this when it's imported into virt-manager using $vm_name here
+# The build image file name should always be "kali-linux", we change this when it's imported into virt-manager using $vm_name here
 echo "[*]Copying VM files to virt-manager path..."
-sudo cp build/ubuntu-2204-desktop "${dest_path}"/images/"${vm_name}".qcow2
+sudo cp build/kali-linux "${dest_path}"/images/"${vm_name}".qcow2
 sudo cp build/efivars.fd "${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd
 
 # Set the ownership to `libvirt-qemu:kvm` (this was done on an Ubuntu host, your user:group may be different).
@@ -82,7 +82,7 @@ virt-install \
   --disk path="${dest_path}"/images/"${vm_name}".qcow2,format=qcow2,bus=virtio \
   --import \
   --features smm.state=on \
-  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd,loader.readonly=yes,loader_secure=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.ms.fd,nvram="${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd \
+  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.fd,nvram="${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd \
   --tpm default \
   --rng /dev/urandom \
   --network network="${vm_net}",model=virtio \

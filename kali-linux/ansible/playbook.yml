@@ -1,0 +1,22 @@
+---
+# Without a vault:
+# $ ansible-playbook -i "localhost," -c local [--ask-become-pass] [-e "var_one=true var_two=false"] -v ./playbook.yml
+# $ ansible-playbook -i inventory/inventory.ini [-b] [--ask-become-pass] -v playbook.yml
+# Using a vault:
+# $ echo "Enter Vault Password"; read -s vault_pass; export ANSIBLE_VAULT_PASSWORD=$vault_pass
+# [type vault password here, then enter]
+# $ ansible-playbook -i <inventory> -e "@~/vault.yml" --vault-pass-file <(cat <<<$ANSIBLE_VAULT_PASSWORD) -v ./playbook.yml
+
+# Creating roles: https://galaxy.ansible.com/docs/contributing/creating_role.html
+
+- name: "Default Playbook"
+  hosts:
+    # List groups from your inventory here
+    # You could also use the built in "all" or "ungrouped"
+    # "all" is necessary when Vagrant is auto-generating the inventory
+    all
+    # localgroup
+    # remotegroup
+  roles:
+    # Uncomment roles to run
+    - role: "install_chrome"

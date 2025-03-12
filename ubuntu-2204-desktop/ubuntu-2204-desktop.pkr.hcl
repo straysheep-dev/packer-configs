@@ -59,7 +59,7 @@ source "qemu" "ubuntu-2204-desktop" {
 # [Packer Block: Build](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/build)
 build {
   name    = "${local.vm_name}"
-  sources = ["source.qemu.${local.vm_name}"]
+  sources = ["source.qemu.ubuntu-2204-desktop"]
 
   provisioner "ansible" {
     playbook_file = "${local.playbook_file}"

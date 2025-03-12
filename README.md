@@ -21,6 +21,9 @@ A list of resources used to create these templates.
 - [github.com/canonical/autoinstall-desktop](https://github.com/canonical/autoinstall-desktop)
 - [github.com/canonical/packer-maas Templates](https://github.com/canonical/packer-maas/blob/main/ubuntu/ubuntu-lvm.pkr.hcl)
 - [`boot_command` Examples](https://developer.hashicorp.com/packer/docs/community-tools#templates)
+- [kali-vagrant Build Scripts](https://gitlab.com/kalilinux/build-scripts/kali-vagrant)
+- [Ubuntu Docs: Virtual Machine Manager](https://documentation.ubuntu.com/server/how-to/virtualisation/virtual-machine-manager/index.html)
+- [Support added for internal snapshots of UEFI VM's in virt-manager](https://github.com/virt-manager/virt-manager/issues/851)
 
 
 ## Getting Started
@@ -42,6 +45,17 @@ A list of resources used to create these templates.
 
 
 ## Essential Commands
+
+Manually install plugins.
+
+```bash
+# List installed plugins
+packer plugins installed
+
+# Install plugins
+packer plugins install github.com/hashicorp/ansible
+packer plugins install github.com/hashicorp/qemu
+```
 
 Initialize a packer template. This downloads any missing plugins described in the `packer {}` block to your local machine. **Review plugins before executing this**.
 
@@ -118,6 +132,22 @@ build {
 ```
 
 *As better ways to handle credentials are tested across platforms, and with CI/CD, they will be added here.*
+
+
+## Ansible hostfwd
+
+You can use the `-netdev user,id=net0,hostfwd=tcp::2222-:22 \` port forward to reach the VM through the host to run additional Ansible roles after the build completes.
+
+Here's an example inventory file using the host 2222:22 port forward:
+
+```yml
+packergroup:
+    127.0.0.1:
+        ansible_port: 2222
+        ansible_user: kali
+```
+
+You'll need a public key on the packer machine, or `sudo apt install -y sshpass` on the Ansible / Packer host.
 
 
 ## Run Completed Builds with QEMU
