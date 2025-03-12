@@ -1,2 +1,10 @@
 ---
 # handlers file for build_ubuntu_desktop
+
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html
+- name: Restart SSH
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+  become: true
+  become_method: ansible.builtin.sudo

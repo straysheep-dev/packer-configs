@@ -26,3 +26,17 @@
         renderer: NetworkManager
   become: true
   become_method: ansible.builtin.sudo
+
+- name: Enable UFW (Firewall)
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo y | ufw enable
+  args:
+    executable: /bin/bash
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Allow SSH (Firewall)
+  ansible.builtin.command: ufw allow ssh
+  become: true
+  become_method: ansible.builtin.sudo

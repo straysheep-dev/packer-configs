@@ -5,6 +5,10 @@
   include_tasks: desktop.yml
   when: ansible_facts["distribution"] == "Ubuntu"
 
+- name: "SSH Tasks"
+  include_tasks: ssh.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
 - name: "Network Tasks"
   include_tasks: network.yml
   when: ansible_facts["distribution"] == "Ubuntu"
@@ -37,3 +41,7 @@
   include_tasks: gnome.yml
   when: (ansible_facts["distribution"] == "Ubuntu") and
         ("'gnome-shell' in ansible_facts.packages")
+
+- name: "System Tasks"
+  include_tasks: system.yml
+  when: ansible_facts["distribution"] == "Ubuntu"

@@ -1,0 +1,51 @@
+---
+# build_ubuntu_desktop/tasks/system.yml
+
+- name: "Set hostname"
+  ansible.builtin.copy:
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      {{ hostname_string }}
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Get stats of /etc/hosts"
+  ansible.builtin.stat:
+    path: /etc/hosts
+  register: etc_hosts
+
+- name: "Create /etc/hosts"
+  ansible.builtin.copy:
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      127.0.0.1 localhost
+      127.0.1.1 {{ hostname_string }}
+
+      # The following lines are desirable for IPv6 capable hosts
+      ::1     ip6-localhost ip6-loopback
+      fe00::0 ip6-localnet
+      ff00::0 ip6-mcastprefix
+      ff02::1 ip6-allnodes
+      ff02::2 ip6-allrouters
+  when: (not etc_hosts.stat.exists) or
+        (etc_hosts.stat.exists and etc_hosts.stat.size == 0)
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Configure /etc/hosts"
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    search_string: '127.0.1.1'
+    line: 127.0.1.1 {{ hostname_string }}
+    owner: root
+    group: root
+    mode: '0644'
+  when: etc_hosts.stat.exists and etc_hosts.stat.size > 0
+  become: true
+  become_method: ansible.builtin.sudo

@@ -9,14 +9,14 @@
     pkg:
       - powershell
     state: latest
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7.4#create-persistent-environment-variables-on-non-windows-platforms
 - name: Write PowerShell Telemetry Profile Script
   ansible.builtin.blockinfile:
     state: present
-    create: yes
+    create: true
     path: /etc/profile.d/powershell.sh
     mode: '0644'
     owner: root
@@ -25,16 +25,16 @@
       #!/bin/bash
       # Disable PowerShell telemetry system-wide
       export POWERSHELL_TELEMETRY_OPTOUT=1
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Include /etc/profile.d/powershell.sh in /etc/bash.bashrc
   ansible.builtin.blockinfile:
     state: present
-    create: yes
+    create: true
     insertbefore: '^umask\s\d+$'
-    prepend_newline: yes
-    append_newline: yes
+    prepend_newline: true
+    append_newline: true
     path: /etc/bash.bashrc
     mode: '0644'
     owner: root
@@ -43,5 +43,5 @@
       if [ -f /etc/profile.d/powershell.sh ]; then
           . /etc/profile.d/powershell.sh
       fi
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo

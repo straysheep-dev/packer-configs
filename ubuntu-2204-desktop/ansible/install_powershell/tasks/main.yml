@@ -2,8 +2,10 @@
 # tasks file for install_powershell
 
 # Will install and configure PowerShell on any system once the "configure_microsoft_repos" role is executed
-- include_tasks: linux.yml
+- name: Include Linux Tasks
+  include_tasks: linux.yml
   when: ansible_facts['system'] == "Linux"
 
-- include_tasks: windows.yml
+- name: Include Windows Tasks
+  include_tasks: windows.yml
   when: ansible_facts['os_family'] == "Windows"

@@ -1,6 +1,9 @@
 ---
 # defaults file for build_ubuntu_desktop
 
+# Hostname definition
+hostname_string: "ubuntu-2204"
+
 # Choose which desktop to install onto a server image.
 # See vars/main.yml for a complete list of options.
 desktop_package: "ubuntu-desktop-minimal"

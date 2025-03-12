@@ -77,3 +77,10 @@
       export GPG_TTY="$(tty)"
       export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
       gpgconf --launch gpg-agent
+
+      # You can alternatively use Bitwarden's SSH agent, either temporarily per-session by copy and pasting
+      # one of the lines below into your terminal, or here in bashrc by commenting out the gpg SSH_AUTH_SOCK.
+      # File > Settings > Enable SSH agent
+      # https://bitwarden.com/help/ssh-agent/#configure-bitwarden-ssh-agent
+      #export SSH_AUTH_SOCK=/home/$USER/.bitwarden-ssh-agent.sock
+      #export SSH_AUTH_SOCK=/home/$USER/snap/bitwarden/current/.bitwarden-ssh-agent.sock
