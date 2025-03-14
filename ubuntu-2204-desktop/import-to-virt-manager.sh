@@ -56,7 +56,7 @@ echo "[*]Ensuring ${dest_path} exists..."
 sudo mkdir -p "${dest_path}"/images
 sudo mkdir -p "${dest_path}"/qemu/nvram
 # Ensure libvirt has ownership and ACL permissions over the image path
-sudo chown -R libvirt-qemu:kvm "${dest_path}"
+#sudo chown -R libvirt-qemu:kvm "${dest_path}"
 #sudo setfacl -R -m u:libvirt-qemu:rx "${dest_path}"
 
 # Move the VM disk image and EFI variables into the correct virt-manager paths.
@@ -87,7 +87,7 @@ virt-install \
   --rng /dev/urandom \
   --network network="${vm_net}",model=virtio \
   --video qxl \
-  --channel spicevmc \
+  --channel spicevmc
 
 echo "[*]VM imported and booting, waiting to shutdown..."
 while (virsh list --all | grep "${vm_name}" | grep running >/dev/null); do

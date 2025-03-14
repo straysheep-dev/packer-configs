@@ -40,8 +40,6 @@ Alternatively you can embed the `preseed.cfg` directly into the ISO (not ideal, 
 
 It's important to run all `apt` updates through the shell provisioner before attempting to run any Ansible provisioners.The avoids `python-apt` missing as a dependancy.
 
-As of 2025.03.08, the build will "fail" during the package install phase. Choose "continue" twice at the prompt and the autoinstall resumes without issue. It's unclear what is causing this or if it's limited to one ISO.
-
 > [!NOTE]
 > For dynamic customization, packer `variables` should be used instead of `locals`. This will let you modify values on the command line when executing the build.
 
@@ -116,7 +114,39 @@ kvm -no-reboot -m 4096 -smp 4 \
 
 ## Troubleshooting
 
-You may run into an error like this with the `qemu-guest-agent.service`:
+**Build Fails During Package Install Phase**
+
+The build will "fail" during the package install phase when using [kali-linux-2024.4-installer-amd64.iso](https://cdimage.kali.org/kali-2024.4/). Choose "continue" twice at the prompt and the autoinstall resumes without issue.
+
+
+**qemu-guest-agent.service Fails to Start**
+
+This can happen when the **unix channel** is missing, and the `spice-vdagent` package is not installed, though it won't always result in an error depending on the guest. For example Ubuntu does not appear to need this channel added for the clipboard and file drag-and-drop to work, while Kali does.
+
+- <https://libvirt.org/formatdomain.html#channel>
+- <https://wiki.libvirt.org/Qemu_guest_agent.html>
+
+Comparing the raw XML of two (powered off) VM's where one is having this issue and the other is not, will likely point to this block in the diff:
+
+```xml
+<channel type="unix">
+  <target type="virtio" name="org.qemu.guest_agent.0"/>
+  <address type="virtio-serial" controller="0" bus="0" port="1"/>
+</channel>
+```
+
+When installing the VM with `virt-install` you'll need to use the line `--channel unix,target.type="virtio",target.name="org.qemu.guest_agent.0"`. Once the guest is imported and installed in virt-manager, ensure you have the `spice-vdagent` and `qemu-guest-agent` packages installed. You can also achieve this through running the [`kali-tweaks` command](https://gitlab.com/kalilinux/packages/kali-tweaks/-/blob/kali/master/kali_tweaks/settings/virtualization.py?ref_type=heads#L55) and choosing Virtualization.
+
+```bash
+# Install the QEMU guest services manually
+sudo apt update
+sudo apt install -y qemu-guest-agent spice-vdagent
+
+# Reboot for the services to take effect
+sudo systemctl reboot
+```
+
+On Kali, you'll get this error in the guest if you *don't* have a unix channel pointing to `org.qemu.guest_agent.0`:
 
 ```bash
 Mar 03 22:50:14 kali systemd[1]: qemu-guest-agent.service: Bound to unit dev-virtio\x2dports-org.qemu.guest_agent.0.device, but unit isn't active.
@@ -141,8 +171,3 @@ $ systemctl status dev-virtio\x2dports-org.qemu.guest_agent.0.device
 $ sudo systemctl restart dev-virtio\x2dports-org.qemu.guest_agent.0.device
 Failed to restart dev-virtiox2dports-org.qemu.guest_agent.0.device: Job type restart is not applicable for unit dev-virtiox2dports-org.qemu.guest_agent.0.device.
 ```
-
-These resources may point you to a solution:
-
-- [Proxmox Forum: Dependancy Failed for QEMU Guest Agent](https://forum.proxmox.com/threads/dependency-failed-for-qemu-guest-agent.75797/)
-- [Red Hat: Enabling QEMU Guest Agent](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/configuring_and_managing_virtualization/enabling-qemu-guest-agent-features-on-your-virtual-machines_configuring-and-managing-virtualization)

@@ -26,14 +26,14 @@ variable "vm_hostname"  {
 variable "iso_urls" {
     type    = list(string)
     default = [
-    "file:///home/user/iso/kali-linux-2024.4-installer-amd64.iso",
-    "https://cdimage.kali.org/kali-2024.4/kali-linux-2024.4-installer-amd64.iso"
+    "file:///home/user/iso/kali-linux-2025.1a-installer-amd64.iso",
+    "https://cdimage.kali.org/kali-2025.1a/kali-linux-2025.1a-installer-amd64.iso"
   ]
 }
 
 variable "iso_checksum" {
     type    = string
-    default = "beca4f8fd7f58eda290812f538e1323d3ba1f1a34df4b203e85de4be42525bb6"
+    default = "5c3e195d8e8c5857d75e5c82df861852de0063c54f9cd9f9cba6e29be53367fb"
 }
 
 variable "iso_storage_path" {
