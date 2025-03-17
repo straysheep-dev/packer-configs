@@ -1,0 +1,170 @@
+---
+# configure_microsoft_repos/tasks/apt.yml
+
+# This file should work for any role where you need to add the Microsoft Linux repository information.
+# When additional information is required (e.g. repo information for vscode) it will be handled by that role.
+
+# We need to handle the URL strings differently for Ubuntu and Debian
+- name: Set version string for URL (Debian)
+  ansible.builtin.set_fact:
+    parsed_version_string: "{{ ansible_facts['distribution_version'].split('.')[0] }}"
+  when: ansible_facts["distribution"] == "Debian"
+
+- name: Set version string for URL (Ubuntu)
+  ansible.builtin.set_fact:
+    parsed_version_string: "{{ ansible_facts['distribution_version'] }}"
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+# NOTE: As of Ubuntu 24.04 debsig-verify no longer works due to a SHA1 hash in the signature.
+# This task was changed to obtain the prod.list file and install the gpg key manually.
+# https://github.com/microsoft/linux-package-repositories#signature-verification
+
+# https://learn.microsoft.com/en-us/linux/packages#how-to-install-microsoft-software-packages-using-the-linux-repository
+# https://packages.microsoft.com/keys/microsoft.asc
+# Public Key ID: Microsoft (Release signing) gpgsecurity@microsoft.com
+# Public Key Fingerprint: BC52 8686 B50D 79E3 39D3 721C EB3E 94AD BE12 29CF
+# https://packages.microsoft.com/config/
+# https://packages.microsoft.com/config/ubuntu/22.04/
+- name: Obtain Microsoft Signing Key
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /tmp/microsoft.asc
+    mode: '0644'
+
+# https://learn.microsoft.com/en-us/linux/packages#how-to-use-the-gpg-repository-signing-key
+- name: Verify Microsoft signing key
+  ansible.builtin.shell: |
+    gpg /tmp/microsoft.asc | grep -P "BC52\s?8686\s?B50D\s?79E3\s?39D3\s?\s?721C\s?EB3E\s?94AD\s?BE12\s?29CF"
+  args:
+    executable: /bin/bash
+
+# Installs it in both /usr/share/keyrings for the standard Microsoft repos, and /etc/apt/keyrings for VSCode
+- name: Install Microsoft signing key
+  ansible.builtin.shell: |
+    if [ -f /usr/share/keyrings/microsoft-prod.gpg ]; then rm -f /usr/share/keyrings/microsoft-prod.gpg; fi
+    gpg -o /usr/share/keyrings/microsoft-prod.gpg --dearmor /tmp/microsoft.asc
+    if [ -f /etc/apt/keyrings/microsoft-prod.gpg ]; then rm -f /etc/apt/keyrings/microsoft-prod.gpg; fi
+    gpg -o /etc/apt/keyrings/microsoft-prod.gpg --dearmor /tmp/microsoft.asc
+  args:
+    executable: /bin/bash
+  become: yes
+  become_method: sudo
+
+- name: Obtain Microsoft prod.list file
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/config/{{ ansible_facts["distribution"] | lower }}/{{ parsed_version_string }}/prod.list
+    dest: /etc/apt/sources.list.d/microsoft-prod.list
+    mode: '0644'
+  become: yes
+  become_method: sudo
+
+# Ensures the signed-by line exists to avoid errors, creates a backup of the original for recovery
+- name: Update Microsoft prod.list file
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/microsoft-prod.list
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+    content: |
+      deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/{{ ansible_facts["distribution"] | lower }}/{{ parsed_version_string }}/prod {{ ansible_facts["distribution_release"] }} main
+  become: yes
+  become_method: sudo
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 0
+  become: yes
+  become_method: sudo
+
+# Register which sources your package manager uses for .NET
+- name: Register package source for .NET
+  ansible.builtin.shell: |
+    apt-cache policy '?name(dotnet.*)' | grep -v microsoft | grep '/ubuntu' | cut -d"/" -f3 | sort -u
+  args:
+    executable: /bin/bash
+  register: dotnet_sources
+
+# Split the dotnet_sources into a list
+# https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#stdout-lines
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/split_filter.html
+
+# Either prioritize your distro's package archive for .NET packages, or Microsoft's feed.
+# Defaults to your distro's packages, change this in vars/main.yml.
+# https://learn.microsoft.com/en-us/dotnet/core/install/linux-package-mixup?pivots=os-linux-ubuntu#whats-going-on
+
+# Only adds or removes these lines, if /etc/apt/preferences.d/microsoft-prod exists it will not modify any other lines
+# This loop does not work with the ansible.builtin.copy module, it will overwrite itself on each iteration
+# So does ansible.builtin.blockinfile without this syntax using "marker": https://github.com/ansible/ansible-modules-extras/issues/1592
+- name: Set package priority for Microsoft feed
+  ansible.builtin.blockinfile:
+    state: present
+    create: yes
+    append_newline: yes
+    path: /etc/apt/preferences.d/microsoft-prod
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      Package: dotnet* aspnet* netstandard*
+      Pin: origin "{{ item }}"
+      Pin-Priority: -10
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{item}}"
+  with_items:
+    - "{{ dotnet_sources.stdout_lines }}"
+  when: prioritize_microsoft_feed == "true"
+  become: yes
+  become_method: sudo
+
+- name: Unset package priority for Microsoft feed
+  ansible.builtin.blockinfile:
+    state: absent
+    create: yes
+    append_newline: yes
+    path: /etc/apt/preferences.d/microsoft-prod
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      Package: dotnet* aspnet* netstandard*
+      Pin: origin "{{ item }}"
+      Pin-Priority: -10
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{item}}"
+  with_items:
+    - "{{ dotnet_sources.stdout_lines }}"
+  when: prioritize_microsoft_feed == "false"
+  become: yes
+  become_method: sudo
+
+- name: Set package priority for Linux archive
+  ansible.builtin.blockinfile:
+    state: present
+    create: yes
+    path: /etc/apt/preferences.d/microsoft-prod
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      Package: dotnet* aspnet* netstandard*
+      Pin: origin "packages.microsoft.com"
+      Pin-Priority: -10
+  when: prioritize_microsoft_feed == "false"
+  become: yes
+  become_method: sudo
+
+- name: Unset package priority for Linux archive
+  ansible.builtin.blockinfile:
+    state: absent
+    create: yes
+    path: /etc/apt/preferences.d/microsoft-prod
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      Package: dotnet* aspnet* netstandard*
+      Pin: origin "packages.microsoft.com"
+      Pin-Priority: -10
+  when: prioritize_microsoft_feed == "true"
+  become: yes
+  become_method: sudo
