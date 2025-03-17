@@ -24,4 +24,8 @@ jobs:
       - name: Run ansible-lint (kali-linux)
         uses: ansible/ansible-lint@main # or version tag instead of 'main'
         with:
-          working_directory: "kali-linux/ansible"
+          working_directory: "debian-12-server/ansible"
+      - name: Run ansible-lint (debian-12-server)
+        uses: ansible/ansible-lint@main # or version tag instead of 'main'
+        with:
+          working_directory: "debian-12-server/ansible"
