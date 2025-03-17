@@ -77,12 +77,14 @@
   become_method: ansible.builtin.sudo
   ignore_errors: true
 
+# https://stackoverflow.com/questions/30328506/check-if-service-exists-with-ansible
 - name: Stop and disable systemd-resolved
   ansible.builtin.service:
     name: systemd-resolved
     state: stopped
     enabled: false
-  when: (ansible_facts['services']['systemd-resolved.service']['status'] is not none) and
+  when: ('systemd-resolved' in services) and
+        (ansible_facts['services']['systemd-resolved.service']['status'] is not none) and
         (ansible_facts['services']['systemd-resolved.service']['status'] == "enabled")
   become: true
   become_method: ansible.builtin.sudo

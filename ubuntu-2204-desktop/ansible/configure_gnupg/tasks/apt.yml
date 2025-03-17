@@ -1,9 +1,24 @@
 ---
 # configure_gnupg/tasks/apt.yml
 
+# On Debian based distros the gnupg2 and gnupg-agent packages are the historical names of
+# the modern gpg and gpg-agent packages. Installing them based on the historical name will
+# install the modern packages, as they're both transitional packages now pointing to the
+# modern ones. Doing it this way adds compatability for older systems.
+#
+# See the following links for details:
+# - https://github.com/drduh/YubiKey-Guide?tab=readme-ov-file#install-software
+# - https://packages.debian.org/bookworm/gnupg2
+#   - https://packages.debian.org/bookworm/all/gnupg2/filelist
+#   - https://packages.ubuntu.com/oracular/all/gnupg2/filelist
+# - https://packages.debian.org/bookworm/gnupg-agent
+#   - https://packages.debian.org/bookworm/all/gnupg-agent/filelist
+#   - https://packages.ubuntu.com/oracular/all/gnupg-agent/filelist
 - name: Install smartcard packages (Debian / Ubuntu)
   ansible.builtin.apt:
     pkg:
+      - gpg
+      - gpg-agent
       - pcscd
       - scdaemon
     state: latest

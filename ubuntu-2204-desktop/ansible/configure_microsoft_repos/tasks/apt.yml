@@ -4,6 +4,17 @@
 # This file should work for any role where you need to add the Microsoft Linux repository information.
 # When additional information is required (e.g. repo information for vscode) it will be handled by that role.
 
+# We need to handle the URL strings differently for Ubuntu and Debian
+- name: Set version string for URL (Debian)
+  ansible.builtin.set_fact:
+    parsed_version_string: "{{ ansible_facts['distribution_version'].split('.')[0] }}"
+  when: ansible_facts["distribution"] == "Debian"
+
+- name: Set version string for URL (Ubuntu)
+  ansible.builtin.set_fact:
+    parsed_version_string: "{{ ansible_facts['distribution_version'] }}"
+  when: ansible_facts["distribution"] == "Ubuntu"
+
 # NOTE: As of Ubuntu 24.04 debsig-verify no longer works due to a SHA1 hash in the signature.
 # This task was changed to obtain the prod.list file and install the gpg key manually.
 # https://github.com/microsoft/linux-package-repositories#signature-verification
@@ -41,7 +52,7 @@
 
 - name: Obtain Microsoft prod.list file
   ansible.builtin.get_url:
-    url: https://packages.microsoft.com/config/{{ ansible_facts["distribution"] | lower }}/{{ ansible_facts["distribution_version"] }}/prod.list
+    url: https://packages.microsoft.com/config/{{ ansible_facts["distribution"] | lower }}/{{ parsed_version_string }}/prod.list
     dest: /etc/apt/sources.list.d/microsoft-prod.list
     mode: '0644'
   become: yes
@@ -56,7 +67,7 @@
     mode: '0644'
     backup: yes
     content: |
-      deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/{{ ansible_facts["distribution"] | lower }}/{{ ansible_facts["distribution_version"] }}/prod {{ ansible_facts["distribution_release"] }} main
+      deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/{{ ansible_facts["distribution"] | lower }}/{{ parsed_version_string }}/prod {{ ansible_facts["distribution_release"] }} main
   become: yes
   become_method: sudo
 
