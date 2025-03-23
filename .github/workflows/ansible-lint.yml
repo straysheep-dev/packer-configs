@@ -3,29 +3,29 @@
 # Taken from the following example:
 # https://github.com/ansible/ansible-lint?tab=readme-ov-file#using-ansible-lint-as-a-github-action
 
-name: ansible-lint
-on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-jobs:
-  build:
-    name: Ansible Lint # Naming the build is important to use it as a status check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run ansible-lint (ubuntu-2204-desktop)
-        uses: ansible/ansible-lint@main # or version tag instead of 'main'
-        with:
-          working_directory: "ubuntu-2204-desktop/ansible"
-
-      - name: Run ansible-lint (kali-linux)
-        uses: ansible/ansible-lint@main # or version tag instead of 'main'
-        with:
-          working_directory: "debian-12-server/ansible"
-      - name: Run ansible-lint (debian-12-server)
-        uses: ansible/ansible-lint@main # or version tag instead of 'main'
-        with:
-          working_directory: "debian-12-server/ansible"
+#name: ansible-lint
+#on:
+#  push:
+#    branches: ["main"]
+#  pull_request:
+#    branches: ["main"]
+#jobs:
+#  build:
+#    name: Ansible Lint # Naming the build is important to use it as a status check
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Run ansible-lint (ubuntu-2204-desktop)
+#        uses: ansible/ansible-lint@main # or version tag instead of 'main'
+#        with:
+#          working_directory: "ubuntu-2204-desktop/ansible"
+#
+#      - name: Run ansible-lint (kali-linux)
+#        uses: ansible/ansible-lint@main # or version tag instead of 'main'
+#        with:
+#          working_directory: "debian-12-server/ansible"
+#      - name: Run ansible-lint (debian-12-server)
+#        uses: ansible/ansible-lint@main # or version tag instead of 'main'
+#        with:
+#          working_directory: "debian-12-server/ansible"

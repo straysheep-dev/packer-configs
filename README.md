@@ -1,9 +1,11 @@
 # packer-configs
 
-![packer workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/packer.yml/badge.svg) ![ansible-lint workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/ansible-lint.yml/badge.svg) ![shellcheck workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/shellcheck.yml/badge.svg)
+![packer workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/packer.yml/badge.svg) ![ansible-lint workflow](https://github.com/straysheep-dev/ansible-configs/actions/workflows/ansible-lint.yml/badge.svg) ![shellcheck workflow](https://github.com/straysheep-dev/packer-configs/actions/workflows/shellcheck.yml/badge.svg)
 
 A collection of Packer templates for various uses. These were written in a way that should help you understand `packer` by looking at how they work, and expanding on them.
 
+> [!NOTE]
+> The status for ansible-lint is from the [straysheep-dev/ansible-configs](https://github.com/straysheep-dev/ansible-configs) repo. These roles will always be sync'd from there, unmodified. The CI workflow here appears to have issues even with the `working_directory:` argument.
 
 ## Resources
 
