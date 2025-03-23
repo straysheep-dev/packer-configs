@@ -6,6 +6,11 @@ if [[ "$iso_path" == '' ]]; then
     exit 1
 fi
 
+if ! [[ -e ./seed.img ]]; then
+    echo "[*]No seed.img file found. Please build the seed ISO first with: $ bash ./create-data-iso.sh"
+    exit 1
+fi
+
 # Build the VM
 packer build \
     -var "iso_storage_path=file://${iso_path}" .
