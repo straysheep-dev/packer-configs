@@ -18,32 +18,32 @@ variable "vm_name" {
   default = "debian12"
 }
 
-variable "vm_hostname"  {
+variable "vm_hostname" {
   type    = string
   default = "debian12"
 }
 
 variable "iso_urls" {
-    type    = list(string)
-    default = [
+  type = list(string)
+  default = [
     "file:///home/user1/iso/debian-12.8.0-amd64-netinst.iso",
     "https://cdimage.debian.org/mirror/cdimage/archive/12.8.0/amd64/iso-cd/debian-12.8.0-amd64-netinst.iso"
   ]
 }
 
 variable "iso_checksum" {
-    type    = string
-    default = "04396d12b0f377958a070c38a923c227832fa3b3e18ddc013936ecf492e9fbb3"
+  type    = string
+  default = "04396d12b0f377958a070c38a923c227832fa3b3e18ddc013936ecf492e9fbb3"
 }
 
 variable "iso_storage_path" {
-    type    = string
-    default = "/home/user/iso/"
+  type    = string
+  default = "/home/user/iso/"
 }
 
 source "qemu" "debian12" {
-  accelerator        = "kvm"
-  boot_command       = [
+  accelerator = "kvm"
+  boot_command = [
     "e<wait>",
     "<down><down><down><end>",
     " --- ",
@@ -86,8 +86,7 @@ build {
   provisioner "shell" {
     inline = [
       "echo packer | sudo -S apt update",
-      "echo packer | sudo -S apt full-upgrade -y",
-      "echo packer | sudo -S passwd -e user1"
+      "echo packer | sudo -S apt full-upgrade -y"
     ]
   }
 

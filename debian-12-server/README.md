@@ -9,6 +9,8 @@ Resources used to work on these templates:
 - [debian.org example-preseed.txt Template](https://www.debian.org/releases/stable/example-preseed.txt)
 - [debian.org/tasksel](https://wiki.debian.org/tasksel)
 - [debian.org/NetworkConfiguration](https://wiki.debian.org/NetworkConfiguration#Network_Interface_Names)
+- [hashicorp/packer/provisioners/shell: Quoting Environment Variables](https://developer.hashicorp.com/packer/docs/provisioners/shell#quoting-environment-variables)
+- [gitlab.com/kalilinux/build-scripts Fixing Networking](https://gitlab.com/kalilinux/build-scripts/kali-vagrant/-/blob/master/scripts/vagrant.sh?ref_type=heads#L19)
 
 > [!NOTE]
 > This template is essentially a port of the [kali-linux template](../kali-linux), using the [debian.org example-preseed.txt Template](https://www.debian.org/releases/stable/example-preseed.txt), and is available under the same Apache v2.0 license.
@@ -47,7 +49,7 @@ kvm -no-reboot -m 4096 -smp 4 \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
     -drive if=pflash,format=raw,file=efivars.fd \
     -device virtio-net-pci,netdev=net0 \
-    -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+    -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::8080-:80,hostfwd=tcp::8443-:443 \
     -drive file=debian12,format=qcow2,if=virtio \
     -vga virtio \
     -display gtk
@@ -56,12 +58,20 @@ kvm -no-reboot -m 4096 -smp 4 \
 
 ## Troubleshooting
 
+During the build process, packer may use a different network interface name than the one you find after booting the resulting build. In this case, `ens4` was used during the build, and `enp0s2` was the name of the interface when booting with `kvm` after the build.
+
 You will need to update [`/etc/network/interfaces` to point to the correct interface name](https://wiki.debian.org/NetworkConfiguration#Network_Interface_Names), otherwise DHCP will fail on first *manual* boot. This still needs resolved through the build process.
 
-Replace `eth0` with the actual interface name:
+Replace `ethX` with the actual interface name to make this fix more permanent:
 
 ```conf
-auto eth0
-allow-hotplug eth0
-iface eth0 inet dhcp
+auto ethX
+allow-hotplug ethX
+iface ethX inet dhcp
+```
+
+In the meantime, you can get around this and obtain an IP address manually after booting with:
+
+```bash
+sudo dhclient -v
 ```

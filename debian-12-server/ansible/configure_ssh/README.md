@@ -1,38 +1,62 @@
-Role Name
+configure_ssh
 =========
 
-A brief description of the role goes here.
+This role conifgures both, the ssh server and it's components as well as the ssh default client configuration.
+
+You can either run the "minimal" tasks to just enforce public key auth, or run the "compliance" tasks to apply a number of security options suggested by CIS, STIG, and other configuration guides. It also installs a [custom login banner](files/issue). The default is "compliance".
+
+The following resources were used to build [files/sshd_config](files/sshd_config):
+
+- [Ubuntu 22.04 Server CIS Level 2 Guide](https://static.open-scap.org/ssg-guides/ssg-ubuntu2204-guide-cis_level2_server.html#!)
+- [Ubuntu 20.04 STIG Guide](https://static.open-scap.org/ssg-guides/ssg-ubuntu2004-guide-stig.html#!)
+- [github.com/drduh/config/sshd_config](https://github.com/drduh/config/blob/main/sshd_config)
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+All variables are in [defaults/main.yml](defaults/main.yml).
+
+**ssh_config_choice**
+
+Options are `"compliance"` (default) or `"minimal"`.
+
+- `minimal`: Just enforces public key authentication by revoking password authentication.
+- `comliance`: Applies a mix of CIS Level 2, STIG, and other changes to lock SSH down without sacrificing usability.
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+playbook.yml:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yml
+- name: "Example Playbook"
+  hosts:
+    localhost
+  roles:
+    - role: "configure_ssh"
+```
+
+Have the `configure_systemd_ssh/` folder in the same directory as the playbook.yml file.
+
+Run with: `ansible-playbook [-i inventory/inventory.ini] --ask-become-pass -v playbook.yml`
 
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+https://github.com/straysheep-dev/ansible-configs

@@ -6,14 +6,14 @@
 # You will often need to run refresh-smartcard to "read" the device correctly in new shell sessions and on reboots
 - name: Install /usr/local/bin/refresh-smartcard
   ansible.builtin.copy:
-    remote_src: no
+    remote_src: false
     src: refresh-smartcard.sh
     mode: '0755'
     owner: root
     group: root
     dest: /usr/local/bin/refresh-smartcard
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
 
 - name: Create ~/.gnupg
   ansible.builtin.file:
