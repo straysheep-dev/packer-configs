@@ -1,11 +1,12 @@
 
 Altered Files:
     - http/preseed.cfg
+    - scripts/vagrant.sh -> network.sh
 
 Removed Files:
     - config.json
     - kali-vars.json
-    - scripts/*
+    - scripts/minimize.sh
     - .gitignore
     - All vagrant files
 

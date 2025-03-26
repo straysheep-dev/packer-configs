@@ -89,6 +89,12 @@ build {
       "echo packer | sudo -S apt full-upgrade -y"
     ]
   }
+  provisioner "shell" {
+    execute_command = "echo 'packer' | {{.Vars}} sudo -S bash -euxo pipefail '{{.Path}}'"
+    scripts = [
+      "scripts/network.sh"
+    ]
+  }
 
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "ansible_become_password=packer"]
