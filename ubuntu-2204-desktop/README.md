@@ -3,7 +3,7 @@
 A packer template for a standard Ubuntu 22.04 Desktop.
 
 > [!IMPORTANT]
-> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This has been fixed in the ansible role build_ubuntu_desktop.
+> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This has been fixed in the ansible role [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop). It was also found that if you don't remember to disable `systemd-networkd` and `systemd-networkd-wait-online`, this will cause a 2 minute delay on boot where the machine should boot more or less instantaneously. This was also fixed in the [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop) role.
 
 ```bash
 sudo rm /etc/netplan/00-installer-config*.yaml

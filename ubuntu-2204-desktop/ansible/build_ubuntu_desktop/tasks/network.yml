@@ -27,6 +27,20 @@
   become: true
   become_method: ansible.builtin.sudo
 
+- name: Disable systemd-networkd on next boot
+  ansible.builtin.service:
+    name: systemd-networkd
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Disable systemd-networkd-wait-online on next boot
+  ansible.builtin.service:
+    name: systemd-networkd-wait-online
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo
+
 - name: Enable UFW (Firewall)
   ansible.builtin.shell: |
     set -o pipefail
