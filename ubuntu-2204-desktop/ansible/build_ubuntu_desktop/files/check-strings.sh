@@ -2,7 +2,6 @@
 
 # GPL-3.0-or-later
 
-# shellcheck disable=SC2317
 # shellcheck disable=SC2034
 # shellcheck disable=SC2221
 # shellcheck disable=SC2222
@@ -111,8 +110,6 @@ while [[ $# -gt 0 ]]; do
 			echo "     -s, --summary"
 			echo "             Summarize the file(s) based on type (magic bytes) and characteristics"
 			exit 0
-			shift
-			shift
 			;;
 		-*|--*)
 			echo "Unknown option $1"
