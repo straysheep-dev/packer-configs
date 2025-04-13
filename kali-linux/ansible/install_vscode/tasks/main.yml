@@ -1,0 +1,15 @@
+---
+# tasks file for install_vscode
+
+# Installs the configuration file, it's the same path no matter which version of VSCode you install
+- include_tasks: config.yml
+
+- include_tasks: snap.yml
+  when: (ansible_facts["distribution"] == "Ubuntu") and
+        (prefer_snap == "true")
+
+- include_tasks: apt.yml
+  when: ansible_facts["os_family"] == "Debian"
+
+- include_tasks: dnf.yml
+  when: ansible_facts["os_family"] == "RedHat"

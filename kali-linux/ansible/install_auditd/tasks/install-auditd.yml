@@ -1,0 +1,213 @@
+---
+# install_auditd/tasks/install-auditd.yml
+
+# Check for Debian or RedHat derivitives
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html
+- name: Set auditd built in rules path (Debian / Ubuntu)
+  ansible.builtin.set_fact:
+    auditd_docs_path: /usr/share/doc/auditd/examples/rules
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Set auditd built in rules path (RedHat / Fedora)
+  ansible.builtin.set_fact:
+    auditd_docs_path: /usr/share/audit-rules
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install auditd (Debian / Ubuntu)
+  ansible.builtin.apt:
+    name: auditd
+    state: latest
+  when: ansible_facts['os_family'] == "Debian"
+  become: yes
+  become_method: sudo
+
+- name: Install auditd (RedHat / Fedora)
+  ansible.builtin.dnf:
+    name: audit
+    state: latest
+  when: ansible_facts['os_family'] == "RedHat"
+  become: yes
+  become_method: sudo
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+- name: Start and enable auditd service
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: yes
+  become: yes
+  become_method: sudo
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+- name: Remove any existing (default) rules
+  ansible.builtin.file:
+    path: "{{ default_rules_path }}"
+    state: absent
+  become: yes
+  become_method: sudo
+
+- name: Recreate the rules path
+  ansible.builtin.file:
+    path: "{{ default_rules_path }}"
+    state: directory
+    mode: '0750'
+  become: yes
+  become_method: sudo
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+- name: Set the log format
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^log_format ='
+    line: 'log_format = {{ log_format }}'
+    backrefs: true
+  become: yes
+  become_method: sudo
+
+- name: Set the maximum size for each log file
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file ='
+    line: 'max_log_file = {{ max_log_file }}'
+    backrefs: true
+  become: yes
+  become_method: sudo
+
+- name: Set total number of log files to maintain before rotating
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^num_logs ='
+    line: 'num_logs = {{ num_logs }}'
+    backrefs: true
+  become: yes
+  become_method: sudo
+
+# Installs prebuilt base rules to work with specific compliance rules
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#iterating-over-a-simple-list
+- name: Install generic rules
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ item }}" # item is a special identifier used as a placeholder for objects in a "loop" section
+    dest: "{{ default_rules_path }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  loop:
+    - "{{ auditd_docs_path }}/10-base-config.rules"
+    - "{{ auditd_docs_path }}/11-loginuid.rules"
+    - "{{ auditd_docs_path }}/21-no32bit.rules"
+    - "{{ auditd_docs_path }}/42-injection.rules"
+    - "{{ auditd_docs_path }}/43-module-load.rules"
+    - "{{ auditd_docs_path }}/71-networking.rules"
+    - "{{ auditd_docs_path }}/99-finalize.rules"
+  when: install_ruleset != "local"
+  become: yes
+  become_method: sudo
+
+# Install one of the premade compliance rulesets, defined by the "install_ruleset" variable in ../vars/main.yml
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/find_module.html
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#registering-variables-with-a-loop
+# https://stackoverflow.com/questions/70659058/how-to-copy-files-that-match-a-glob-pattern-with-ansible
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fileglob_lookup.html
+
+- name: Install STIG rules
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ item }}"
+    dest: "{{ default_rules_path }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  with_fileglob:
+    - "{{ auditd_docs_path }}/30-stig*.rules"
+  when: install_ruleset == "stig"
+  become: yes
+  become_method: sudo
+
+- name: Install OSPP rules
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ item }}"
+    dest: "{{ default_rules_path }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  with_fileglob:
+    - "{{ auditd_docs_path }}/30-ospp*.rules"
+  when: install_ruleset == "ospp"
+  become: yes
+  become_method: sudo
+
+- name: Install PCI-DSS rules
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ item }}"
+    dest: "{{ default_rules_path }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  with_fileglob:
+    - "{{ auditd_docs_path }}/30-pci*.rules"
+  when: install_ruleset == "pci"
+  become: yes
+  become_method: sudo
+
+# Installs prebuilt base rules to work with user defined rules if `install_ruleset_plus_base == "enabled"` in ../vars/main.yml
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#iterating-over-a-simple-list
+- name: Install base rules
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ item }}" # item is a special identifier used as a placeholder for objects in a "loop" section
+    dest: "{{ default_rules_path }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  loop:
+    - "{{ auditd_docs_path }}/10-base-config.rules"
+    - "{{ auditd_docs_path }}/99-finalize.rules"
+  when: install_ruleset_plus_base == "enabled"
+  become: yes
+  become_method: sudo
+
+# User defined rules should exist in ../files/*.rules, do not use `remote_src` here
+- name: Install local (user defined) rules
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ default_rules_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  with_fileglob:
+    - "*.rules"
+  when: install_ruleset == "local"
+  become: yes
+  become_method: sudo
+
+# Make configuration immutable (after next reboot, rules are locked until commenting this line and rebooting again)
+# https://stackoverflow.com/questions/70659058/how-to-copy-files-that-match-a-glob-pattern-with-ansible
+- name: Register rule files
+  ansible.builtin.find:
+    paths: /etc/audit/rules.d/
+    patterns: "*.rules"
+  register: rule_files
+
+# `backrefs: true` must be set, else `line:` is added to ALL files, regardless of a `regexp:` match
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html#parameter-backrefs
+# If there's only one item listed for `loop:`, do NOT start it with a dash like this: `- "{{ var.files }}"`
+# https://stackoverflow.com/questions/64834097/ansible-beginner-list-object-has-no-attribute-name
+- name: Lock rules (make immutable)
+  ansible.builtin.lineinfile:
+    path: "{{ item.path }}"
+    regexp: '^#-e 2$'
+    line: '-e 2'
+    backrefs: true
+  loop:
+    "{{ rule_files.files }}"
+  become: yes
+  become_method: sudo
+
+- name: Reload auditd rules
+  ansible.builtin.shell:
+    cmd: augenrules --check; augenrules --load
+  become: yes
+  become_method: sudo

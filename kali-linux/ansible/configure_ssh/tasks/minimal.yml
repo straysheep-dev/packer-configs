@@ -1,0 +1,11 @@
+---
+# configure_ssh/tasks/minimal.yml
+
+- name: Enforce Public Key Auth (sshd_config)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^.PasswordAuthentication.*$'
+    line: PasswordAuthentication no
+  notify: Restart SSH
+  become: true
+  become_method: ansible.builtin.sudo

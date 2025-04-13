@@ -1,0 +1,14 @@
+---
+# tasks file for configure_ssh
+
+- name: "Include apt tasks"
+  include_tasks: apt.yml
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: "Include minimal tasks"
+  include_tasks: minimal.yml
+  when: ssh_config_choice == "minimal"
+
+- name: "Include compliance tasks"
+  include_tasks: compliance.yml
+  when: ssh_config_choice == "compliance"

@@ -1,0 +1,17 @@
+---
+# configure_ssh/tasks/apt.yml
+
+- name: "Install openssh-server (Debian/Ubuntu)"
+  ansible.builtin.apt:
+    name: openssh-server
+    state: latest
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Start and enable openssh-server"
+  ansible.builtin.service:
+    name: ssh
+    state: started
+    enabled: true
+  become: true
+  become_method: ansible.builtin.sudo

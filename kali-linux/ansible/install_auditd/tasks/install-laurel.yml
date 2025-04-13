@@ -1,0 +1,236 @@
+---
+# install_auditd/tasks/install-laurel.yml
+
+# BSD-3-Clause: https://github.com/IppSec/parrot-build/tree/master/roles/configure-logging#license
+# This task was copied and built from IppSec's parrot-build: https://github.com/IppSec/parrot-build/blob/master/roles/configure-logging/tasks/auditd.yml
+
+# Installs laurel for Debian / Ubuntu, and RedHat / Fedora
+# The release archive (and when SELinux is enabled, the source code to compile the required SELinux policy) is downloaded to /opt/laurel
+
+- name: Install jq (Debian / Ubuntu)
+  ansible.builtin.apt:
+    pkg:
+      - jq
+    state: latest
+  when: ansible_facts['os_family'] == "Debian"
+  become: yes
+  become_method: sudo
+
+- name: Install jq (RedHat / Fedora)
+  ansible.builtin.dnf:
+    pkg:
+      - jq
+    state: latest
+  when: ansible_facts['os_family'] == "RedHat"
+  become: yes
+  become_method: sudo
+
+# Register if SELinux is available and enabled
+- name: Register SELinux status
+  ansible.builtin.shell: |
+    sestatus | grep -P "^SELinux status:\s+enabled$" | awk '{print $3}'
+  args:
+    executable: /bin/bash
+  register: selinux_status
+
+# Conditional to check if selinux_status.stdout is "enabled"
+# Limiting the previous task to only RedHat family systems causes the
+# check to always fail on other systems, even when trying the following:
+# https://ansible.readthedocs.io/projects/lint/rules/empty-string-compare/
+# https://ansible.readthedocs.io/projects/lint/usage/?h=default#vaults
+# This is because the variable doesn't exist if that task never executes.
+- name: Install SELinux development packages (RedHat / Fedora)
+  ansible.builtin.dnf:
+    pkg:
+      - selinux-policy-devel
+      - git
+    state: latest
+  when: selinux_status.stdout == "enabled"
+  become: yes
+  become_method: sudo
+
+- name: Install SELinux development packages (Debian / Ubuntu)
+  ansible.builtin.apt:
+    pkg:
+      - policycoreutils-dev
+      - git
+    state: latest
+  when: (selinux_status.stdout == "enabled") and
+        (ansible_facts['os_family'] == "Debian")
+  become: yes
+  become_method: sudo
+
+- name: "Create _laurel user"
+  ansible.builtin.user:
+    name: _laurel
+    state: present
+    shell: /bin/false
+    create_home: no
+    home: /var/log/laurel
+  become: yes
+  become_method: sudo
+
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_async.html#run-tasks-concurrently-poll-0
+# When you set poll: 0, Ansible starts the task and immediately moves on to the next task without waiting for a result
+# Each async task runs until it either completes, fails or times out
+- name: "Create directories for laurel"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0750') }}"
+  loop:
+    - { "path": "/var/log/laurel", "owner": "_laurel", "group": "_laurel" }
+    - { "path": "/tmp/laurel", "owner": "_laurel", "group": "_laurel" }
+    - { "path": "/etc/laurel" }
+    - { "path": "/opt/laurel/src" }
+  become: yes
+  become_method: sudo
+  async: 15
+  poll: 0
+
+- name: "Copy config.toml to /etc/laurel/config.toml on node"
+  ansible.builtin.copy:
+    remote_src: false
+    src: config.toml
+    dest: /etc/laurel/config.toml
+    owner: _laurel
+    group: _laurel
+    mode: 0640
+  become: yes
+  become_method: sudo
+
+# https://stackoverflow.com/questions/57341104/ansible-loop-over-file-list-and-check-file-exists-if-not-download-it
+- name: Register auditd plugin path
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: auditd_plugin_path
+  loop:
+    - /etc/audit/plugins.d
+    - /etc/audisp/plugins.d
+  become: yes
+  become_method: sudo
+
+- name: Set auditd plugin path
+  ansible.builtin.set_fact:
+    auditd_plugin_path: "{{ item.stat.path }}"
+  when: item.stat.exists == true
+  loop: "{{ auditd_plugin_path.results }}"
+
+- name: Print auditd plugin path
+  ansible.builtin.debug:
+    msg: "{{ auditd_plugin_path }}"
+
+- name: "Copy laurel.conf to {{ auditd_plugin_path }} on node"
+  ansible.builtin.copy:
+    remote_src: false
+    src: laurel.conf
+    dest: "{{ auditd_plugin_path }}/laurel.conf"
+    owner: root
+    group: root
+    mode: 0640
+  become: yes
+  become_method: sudo
+
+# Query the GitHub API, similar to how the sliver c2 installer works
+# https://github.com/BishopFox/sliver/blob/d0e5fbb68081ea8853e4cb709cffb19fec1f675d/docs/sliver-docs/public/install#L98
+# Use the system's ansible_facts plus the json response to obtain the correct URL
+# Specify `musl` or `glibc` for `laurel_binary_type:` in vars/main.yml
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html#examples
+# https://stackoverflow.com/questions/50966777/ansible-download-latest-release-binary-from-github-repo
+- name: "Obtain latest release info for laurel"
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/threathunters-io/laurel/releases/latest
+    return_content: true
+  register: json_response
+
+# If we already have the latest release archive downloaded, don't download it again
+- name: "Check /opt for latest release archive"
+  ansible.builtin.stat:
+    path: "/opt/laurel/laurel-{{ json_response.json.tag_name }}-{{ ansible_facts['architecture'] }}-{{ laurel_binary_type }}.tar.gz"
+  register: laurel_archive
+  become: yes
+  become_method: sudo
+
+- name: "Download laurel {{ json_response.json.tag_name }}"
+  ansible.builtin.get_url:
+    url: "https://github.com/threathunters-io/laurel/releases/download/{{ json_response.json.tag_name }}/laurel-{{ json_response.json.tag_name }}-{{ ansible_facts['architecture'] }}-{{ laurel_binary_type }}.tar.gz"
+    dest: "/opt/laurel/laurel-{{ json_response.json.tag_name }}-{{ ansible_facts['architecture'] }}-{{ laurel_binary_type }}.tar.gz"
+    mode: 0640
+  when: not laurel_archive.stat.exists
+  become: yes
+  become_method: sudo
+
+- name: "Extract the laurel release archive"
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: "/opt/laurel/laurel-{{ json_response.json.tag_name }}-{{ ansible_facts['architecture'] }}-{{ laurel_binary_type }}.tar.gz"
+    dest: /tmp/laurel/
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+  become_method: sudo
+
+- name: "Install laurel binary"
+  ansible.builtin.shell: |
+    install -m755 laurel /usr/local/sbin/laurel
+  args:
+    executable: /bin/bash
+    chdir: /tmp/laurel/
+  become: yes
+  become_method: sudo
+
+- name: "Clone threathunters-io/laurel to build SELinux policy"
+  ansible.builtin.git:
+    repo: https://github.com/threathunters-io/laurel.git
+    dest: /opt/laurel/src
+  when: selinux_status.stdout == "enabled"
+  become: yes
+  become_method: sudo
+
+# You may need to reboot the machine for auditd to load laurel
+- name: "Build and install SELinux policy"
+  ansible.builtin.shell: |
+    make -C contrib/selinux
+    semodule -i contrib/selinux/laurel.pp
+    restorecon -v -R -F /usr/local/sbin/laurel /etc/laurel /var/log/laurel
+  args:
+    executable: /bin/bash
+    chdir: /opt/laurel/src
+  when: selinux_status.stdout == "enabled"
+  become: yes
+  become_method: sudo
+
+# RedHat / Fedora requires a full reboot to load auditd plugins
+- name: "Restart auditd"
+  ansible.builtin.service:
+    name: auditd
+    state: restarted
+  when: not ansible_facts['os_family'] == "RedHat"
+  become: yes
+  become_method: sudo
+
+- name: "Register auditd status"
+  ansible.builtin.shell: |
+    systemctl status auditd
+  args:
+    executable: /bin/bash
+  register: auditd_status
+  become: yes
+  become_method: sudo
+
+- name: "Print auditd status"
+  ansible.builtin.debug:
+    var: auditd_status.stdout_lines
+
+# There could be a better way to check and proceed with this
+# For now Fedora requires a reboot to load the laurel plugin
+# Unless a previous task failed, laurel should be ready to use on reboot
+- name: Reboot system to load laurel (RedHat / Fedora)
+  ansible.builtin.reboot:
+    reboot_timeout: 1
+  when: ansible_facts['os_family'] == "RedHat"
+  become: yes
+  become_method: sudo
