@@ -33,10 +33,14 @@ This will build an Ubuntu 22.04 server and convert it into a full desktop enviro
 - `ubuntu-2204.pkr.hcl` is a "template" containing all of the packer, source, and build blocks referencing the `variables.pkr.hcl` file.
 - `variables.pkr.hcl` defines all of the unique values to build the VM.
 
-There are two files you may want to modify under `ansible/`.
+
+### Ansible
+
+There are three files you may want to modify under `ansible/`.
 
 - `pwfile` contains "password123", and unlocks vault.txt
 - `vault.txt` is an Ansible vault that contains user1's password of "ubuntu"
+- `playbook.yml` contains the roles to run, you can modify these or simply not use them at all; the variables.pkr.hcl still installs a minimal desktop by default
 
 Create and edit a vault ([you will need Ansible installed](https://github.com/straysheep-dev/ansible-configs?tab=readme-ov-file#setup)):
 
@@ -53,6 +57,9 @@ echo '<more-secure-password>' | tee ./ansible/pwfile
 
 Ultimately these files aren't really sensitive, as you should be using Ansible or the shell provisioner to lock down the machine during the build as necessary.
 
+
+### Seed ISO
+
 This template also requires a prebuilt **seed.img** ISO file using `genisoimage` rather than serving the cloud-init config over http. To do this, from this template directory:
 
 > [!IMPORTANT]
@@ -68,6 +75,9 @@ genisoimage \
 ```
 
 The seed.img file is mounted as a cdrom on the VM. To avoid issues with two `-drive` directives, such as `-drive file=seed.img,index=1,media=cdrom`, this packer template uses `-cdrom` instead. cloud-init will automatically look for this data in a mounted CD image without any additional configuration. [This example](https://docs.cloud-init.io/en/latest/howto/launch_qemu.html#create-your-configuration) details how to do all of this manually for QEMU.
+
+
+### Building
 
 To run the build:
 
