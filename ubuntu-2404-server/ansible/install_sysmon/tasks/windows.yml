@@ -1,0 +1,91 @@
+---
+# install_sysmon/tasks/windows.yml
+
+- name: Create C:\Tools folder
+  ansible.windows.win_file:
+    path: C:\Tools
+    state: directory
+  become: yes
+  become_method: runas
+
+- name: Download Sysmon64
+  ansible.windows.win_powershell:
+    script: |
+      iwr 'https://live.sysinternals.com/Sysmon64.exe' -OutFile 'C:\Tools\Sysmon64.exe'
+  become: yes
+  become_method: runas
+
+- name: Copy Sysmon configuration to remote machine
+  ansible.windows.win_copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: C:\Tools\sysmon-config.xml
+  with_fileglob:
+    - "config-windows.xml"
+  when: config_file_present == "true"
+  become: yes
+  become_method: runas
+
+- name: Apply filesystem ACL's to Sysmon files and C:\Tools folder
+  ansible.windows.win_powershell:
+    script: |
+      $FilePath = "C:\Tools"
+      $UserName = "BUILTIN\Administrators"
+      # Reset the ACL
+      $EmptyAcl = New-Object -TypeName System.Security.AccessControl.FileSecurity -ArgumentList $null
+      Set-Acl -Path $FilePath -AclObject $EmptyAcl
+      foreach ($item in (gci -Recurse -Force $FilePath)) {
+        Set-Acl -Path $FilePath -AclObject $EmptyAcl
+      }
+      # Construct the new ACL
+      $NewAcl = Get-Acl -Path $FilePath
+      $AccessRule1 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList $UserName,"FullControl","ContainerInherit,ObjectInherit","None","Allow"
+      $AccessRule2 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList "NT AUTHORITY\SYSTEM","FullControl","ContainerInherit,ObjectInherit","None","Allow"
+      $AccessRule3 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList "Everyone","ReadAndExecute,Synchronize","ContainerInherit,ObjectInherit","None","Allow"
+      $NewOwner = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList "$UserName"
+      $NewAcl.SetAccessRule($AccessRule1)
+      $NewAcl.SetAccessRule($AccessRule2)
+      $NewAcl.SetAccessRule($AccessRule3)
+      $NewAcl.SetAccessRuleProtection($true, $false)
+      $NewAcl.SetOwner($NewOwner)
+      Set-Acl -Path $FilePath -AclObject $EmptyAcl
+      foreach ($item in (gci -Recurse -Force $FilePath)) {
+        Set-Acl -Path $FilePath -AclObject $NewAcl
+      }
+      Get-Acl -Path $FilePath | fl
+  become: yes
+  become_method: runas
+
+# This replicates the ACL for administrators_authorized_keys, only Administrators can read it
+- name: Remove 'read' ACL from sysmon-config.xml for standard users
+  ansible.windows.win_powershell:
+    script: |
+      $FilePath = "C:\Tools\sysmon-config.xml"
+      # Reset the ACL
+      $EmptyAcl = New-Object -TypeName System.Security.AccessControl.FileSecurity -ArgumentList $null
+      Set-Acl -Path $FilePath -AclObject $EmptyAcl
+      # Construct the new ACL
+      $NewAcl = Get-Acl -Path $FilePath
+      $AccessRule1 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList "NT AUTHORITY\SYSTEM","FullControl","Allow"
+      $AccessRule2 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList "BUILTIN\Administrators","FullControl","Allow"
+      $NewOwner = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList "BUILTIN\Administrators"
+      $NewAcl.SetAccessRule($AccessRule1)
+      $NewAcl.SetAccessRule($AccessRule2)
+      $NewAcl.SetAccessRuleProtection($true, $false)
+      $NewAcl.SetOwner($NewOwner)
+      Set-Acl -Path $FilePath -AclObject $NewAcl
+      Get-Acl -Path $FilePath | fl
+  become: yes
+  become_method: runas
+
+- name: Install Sysmon with the configuration file
+  ansible.windows.win_powershell:
+    script: |
+      C:\Tools\Sysmon64.exe -accepteula -i C:\Tools\sysmon-config.xml
+  register: sysmon_results
+  become: yes
+  become_method: runas
+
+- name: Show Sysmon status
+  ansible.builtin.debug:
+    var: sysmon_results.output
