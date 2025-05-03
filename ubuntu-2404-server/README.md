@@ -1,6 +1,6 @@
-# ubuntu-22.04-desktop
+# ubuntu-24.04-server
 
-A packer template for a standard Ubuntu 22.04 Desktop.
+A packer template for a standard Ubuntu 24.04 Server.
 
 > [!IMPORTANT]
 > Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This has been fixed in the ansible role [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop). It was also found that if you don't remember to disable `systemd-networkd` and `systemd-networkd-wait-online`, this will cause a 2 minute delay on boot where the machine should boot more or less instantaneously. This was also fixed in the [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop) role.
@@ -28,9 +28,9 @@ The idea for this template was based on the work documentated under [github.com/
 
 ## Usage
 
-This will build an Ubuntu 22.04 server and convert it into a full desktop environment. It does this with two files.
+This will build an Ubuntu 24.04 server and convert it into a full desktop environment. It does this with two files.
 
-- `ubuntu-2204.pkr.hcl` is a "template" containing all of the packer, source, and build blocks referencing the `variables.pkr.hcl` file.
+- `ubuntu-2404.pkr.hcl` is a "template" containing all of the packer, source, and build blocks referencing the `variables.pkr.hcl` file.
 - `variables.pkr.hcl` defines all of the unique values to build the VM.
 
 
@@ -103,7 +103,7 @@ kvm -no-reboot -m 4096 -smp 4\
   -device virtio-net-pci,netdev=net0 \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -object rng-random,filename=/dev/urandom,id=rng0 \
-  -drive file=ubuntu-2204-desktop,format=qcow2,if=virtio \
+  -drive file=ubuntu-2404-server,format=qcow2,if=virtio \
   -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
   -drive if=pflash,format=raw,file=efivars.fd \
   -vga virtio \

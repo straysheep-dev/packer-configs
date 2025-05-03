@@ -1,16 +1,6 @@
-# ubuntu-22.04-desktop
+# ubuntu-22.04-server
 
-A packer template for a standard Ubuntu 22.04 Desktop.
-
-> [!IMPORTANT]
-> Modifications must be made after the build to allow NetworkManager to handle networking in the desktop environment as described [here](https://github.com/canonical/autoinstall-desktop/blob/4fafe4935501a70e59a54f5138ced14512c5684f/autoinstall.yaml#L57). This has been fixed in the ansible role [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop). It was also found that if you don't remember to disable `systemd-networkd` and `systemd-networkd-wait-online`, this will cause a 2 minute delay on boot where the machine should boot more or less instantaneously. This was also fixed in the [build_ubuntu_desktop](https://github.com/straysheep-dev/ansible-configs/tree/main/build_ubuntu_desktop) role.
-
-```bash
-sudo rm /etc/netplan/00-installer-config*.yaml
-echo "network:
-  version: 2
-  renderer: NetworkManager" | sudo tee /etc/netplan/01-network-manager-all.yaml
-```
+A packer template for a standard Ubuntu 22.04 server.
 
 
 ## References
@@ -20,17 +10,15 @@ This template was built by referencing the following resources:
 - [github.com/shantanoo-desai/packer-ubuntu-server-uefi](https://github.com/shantanoo-desai/packer-ubuntu-server-uefi/blob/main/templates/ubuntu.pkr.hcl)
 - [HashiCorp QEMU Builder Examples](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#basic-example)
 
-The idea for this template was based on the work documentated under [github.com/canonical/autoinstall-desktop](https://github.com/canonical/autoinstall-desktop/blob/main/autoinstall.yaml), which is an excellent reference but is outdated. You don't need to uninstall anything (it's a preference to leave the server utilities installed on the desktop environment) and the default snaps are now installed automatically with the `ubuntu-desktop-minimal` package.
-
 > [!TIP]
 > With Packer, it's often easier to use Packer itself (and cloud-init) to simply install the VM with as few modifications as possible, and then configure it later with the various provisioners. Cloud-init in particular can be very tricky to work with when combined with Packer.
 
 
 ## Usage
 
-This will build an Ubuntu 22.04 server and convert it into a full desktop environment. It does this with two files.
+This will build an Ubuntu 22.04 server. It does this with two files.
 
-- `ubuntu-2204.pkr.hcl` is a "template" containing all of the packer, source, and build blocks referencing the `variables.pkr.hcl` file.
+- `ubuntu-2204-server.pkr.hcl` is a "template" containing all of the packer, source, and build blocks referencing the `variables.pkr.hcl` file.
 - `variables.pkr.hcl` defines all of the unique values to build the VM.
 
 
@@ -89,7 +77,7 @@ packer build \
 
 The Ansible and shell provisioners in the `build {}` block are responsible for configuration, in this case the shell block is what converts the server into a desktop.
 
-Launch the resulting build, whether it's a desktop or server, with:
+Launch the resulting build, whether it's a desktop or server, noting that you may need to adjust the qcow2 image name, with:
 
 ```bash
 # https://superuser.com/questions/1703377/qemu-kvm-uefi-secure-boot-doesnt-work
@@ -103,7 +91,7 @@ kvm -no-reboot -m 4096 -smp 4\
   -device virtio-net-pci,netdev=net0 \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -object rng-random,filename=/dev/urandom,id=rng0 \
-  -drive file=ubuntu-2204-desktop,format=qcow2,if=virtio \
+  -drive file=ubuntu-2204-server,format=qcow2,if=virtio \
   -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
   -drive if=pflash,format=raw,file=efivars.fd \
   -vga virtio \
