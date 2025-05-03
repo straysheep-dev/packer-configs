@@ -1,0 +1,18 @@
+---
+# install_ykman/tasks/pip.yml
+
+# Checks for and prefers pipx if available, else defaults to pip
+
+- name: "Gather package facts"
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: "Install ykman (pipx)"
+  ansible.builtin.shell: |
+    pipx install yubikey-manager
+  when: "'pipx' in ansible_facts.packages"
+
+- name: "Install ykman (pip)"
+  ansible.builtin.shell: |
+    python3 -m pip install --user yubikey-manager
+  when: "'pipx' not in ansible_facts.packages"

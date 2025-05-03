@@ -1,0 +1,56 @@
+---
+# build_ubuntu_desktop/tasks/gnome.yml
+
+# Configures GNOME desktop settings with dconf / gsettings
+
+# Host settings
+- name: Install GNOME configuration scripts (host)
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: /usr/local/bin/
+    mode: '0755'
+    owner: root
+    group: root
+  loop:
+    - "dconf-host.sh"
+    - "gsettings-host.sh"
+  when: ansible_facts["virtualization_role"] != "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Run GNOME host configuration scripts (user)
+  ansible.builtin.command: /usr/local/bin/gsettings-host.sh
+  when: ansible_facts["virtualization_role"] != "guest"
+
+- name: Run GNOME host configuration scripts (system)
+  ansible.builtin.command: /usr/local/bin/dconf-host.sh
+  when: ansible_facts["virtualization_role"] != "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Guest settings (same exact block as above, but for the *-guest.sh scripts)
+- name: Install GNOME configuration scripts (guest)
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: /usr/local/bin/
+    mode: '0755'
+    owner: root
+    group: root
+  loop:
+    - "dconf-guest.sh"
+    - "gsettings-guest.sh"
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Run GNOME guest configuration scripts (user)
+  when: ansible_facts["virtualization_role"] == "guest"
+  ansible.builtin.command: /usr/local/bin/gsettings-guest.sh
+
+- name: Run GNOME guest configuration scripts (system)
+  ansible.builtin.command: /usr/local/bin/dconf-guest.sh
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo

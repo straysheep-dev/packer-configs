@@ -1,0 +1,25 @@
+---
+# build_ubuntu_desktop/tasks/desktop.yml
+
+# This task will look for an existing desktop environment package, and proceed to install
+# one using desktop_package in defaults/main.yml. By default this is the minimal desktop package.
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+# This will compare the list of installed packages to the static list of desktop packages under vars/main.yml.
+# If *any* desktop environment is found to be installed, skip this task.
+# If no desktop environment is found (e.g. length == 0 in the results) then install {{ desktop_package }}.
+# https://docs.ansible.com/ansible/latest/collections/community/general/docsite/filter_guide_abstract_informations_lists_helper.html
+# https://docs.ansible.com/ansible/latest/collections/community/general/lists_intersect_filter.html
+- name: "Install {{ desktop_package }}"
+  ansible.builtin.apt:
+    pkg:
+      - "{{ desktop_package }}"
+    state: latest
+    update_cache: true
+  when: (desktop_package) and
+        (desktop_package_list | community.general.lists_intersect(ansible_facts.packages) | length == 0)
+  become: true
+  become_method: ansible.builtin.sudo

@@ -1,0 +1,58 @@
+---
+# build_ubuntu_desktop/tasks/apt.yml
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debconf_module.html
+# https://askubuntu.com/questions/1498205/ubuntu-server-22-04-how-to-write-the-ansible-debconf-values-into-postfix-config
+# This will create the wireshark group, so group members do not need to run wireshark elevated as root
+- name: Preseed Wireshark configuration
+  ansible.builtin.debconf:
+    name: "wireshark-common"
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  with_items:
+    - { question: "wireshark-common/install-setuid", value: ": true", vtype: "select" }
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Install a selection of packages useful for a desktop environment
+- name: Install apt packages (Default)
+  ansible.builtin.apt:
+    pkg:
+      "{{ apt_packages_install }}"
+    state: latest
+    update_cache: true
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Install a selection of packages, typically for a host
+- name: Install apt packages (Host)
+  ansible.builtin.apt:
+    pkg:
+      "{{ apt_packages_host_install }}"
+    state: latest
+  when: ansible_facts["virtualization_role"] != "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Install a selection of packages, typically for a VM
+- name: Install apt packages (VM)
+  ansible.builtin.apt:
+    pkg:
+      "{{ apt_packages_guest_install }}"
+    state: latest
+  when: ansible_facts["virtualization_role"] == "guest"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Remove a selection of packages often installed by default
+- name: Remove apt Packages
+  ansible.builtin.apt:
+    pkg:
+      "{{ apt_packages_remove }}"
+    autoremove: true
+    purge: true
+    state: absent
+  become: true
+  become_method: ansible.builtin.sudo

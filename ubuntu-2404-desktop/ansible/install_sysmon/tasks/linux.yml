@@ -1,0 +1,48 @@
+---
+# install_sysmon/tasks/install-sysmon.yml
+
+# https://github.com/Sysinternals/SysmonForLinux
+# https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
+
+# It may not be available to install on the latest versions of Fedora
+- name: Install Sysmon for Linux
+  ansible.builtin.package:
+    pkg:
+      - sysmonforlinux
+    state: latest
+  become: yes
+  become_method: sudo
+
+# Once installed, it appears under /opt/sysmon/config.xml, only readable by root
+- name: Copy Sysmon configuration file to target node
+  ansible.builtin.copy:
+    remote_src: no
+    src: "{{ item }}"
+    dest: "/tmp/config.xml"
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  with_fileglob:
+    - "config-linux.xml"
+  when: config_file_present == "true"
+  become: yes
+  become_method: sudo
+
+# Starts Sysmon as a system service
+- name: Start Sysmon as a system service
+  ansible.builtin.shell: |
+    sysmon -i
+  args:
+    executable: /bin/bash
+  become: yes
+  become_method: sudo
+
+# Starts Sysmon as a system service with an optional configuration xml file
+- name: Load a custom configuration file into Sysmon
+  ansible.builtin.shell: |
+    sysmon -c /tmp/config.xml
+  args:
+    executable: /bin/bash
+  when: config_file_present == "true"
+  become: yes
+  become_method: sudo

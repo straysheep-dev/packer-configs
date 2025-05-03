@@ -1,0 +1,12 @@
+---
+# configure_gnupg/tasks/dnf.yml
+
+# NOTE: On Fedora, scdaemon is included with the gnupg2 package
+
+- name: Install smartcard packages (RedHat / Fedora)
+  ansible.builtin.dnf:
+    pkg:
+      - pcsc-lite
+    state: latest
+  become: true
+  become_method: ansible.builtin.sudo

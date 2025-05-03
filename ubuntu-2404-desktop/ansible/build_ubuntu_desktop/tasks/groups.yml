@@ -1,0 +1,24 @@
+---
+# build_ubuntu_desktop/tasks/groups.yml
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Add user to Wireshark group
+  ansible.builtin.user:
+    name: "{{ ansible_facts['env']['USER'] }}"
+    groups: wireshark
+    append: true
+  when: "'wireshark' in ansible_facts.packages"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Add user to libvirt group
+  ansible.builtin.user:
+    name: "{{ ansible_facts['env']['USER'] }}"
+    groups: libvirt
+    append: true
+  when: "'virt-manager' in ansible_facts.packages"
+  become: true
+  become_method: ansible.builtin.sudo

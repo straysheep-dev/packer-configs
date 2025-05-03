@@ -1,0 +1,47 @@
+---
+# tasks file for build_ubuntu_desktop
+
+- name: "Desktop Tasks"
+  include_tasks: desktop.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "SSH Tasks"
+  include_tasks: ssh.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "Network Tasks"
+  include_tasks: network.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "APT Tasks"
+  include_tasks: apt.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "Service Tasks"
+  include_tasks: services.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "File Tasks"
+  include_tasks: files.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "Group Tasks"
+  include_tasks: groups.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+- name: "Snap Tasks"
+  include_tasks: snap.yml
+  when: ansible_facts["distribution"] == "Ubuntu"
+
+# Before Ubuntu 17.10 ubuntu-gnome-desktop was the metapackage for the
+# GNOME desktop. Now gnome-shell can be used to determine if GNOME is
+# installed, and what version.
+# https://askubuntu.com/questions/13348/how-do-i-check-my-version-of-gnome-shell
+- name: "Gnome Tasks"
+  include_tasks: gnome.yml
+  when: (ansible_facts["distribution"] == "Ubuntu") and
+        ("'gnome-shell' in ansible_facts.packages")
+
+- name: "System Tasks"
+  include_tasks: system.yml
+  when: ansible_facts["distribution"] == "Ubuntu"

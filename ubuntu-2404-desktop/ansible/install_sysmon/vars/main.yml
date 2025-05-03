@@ -1,0 +1,5 @@
+---
+# vars file for install_sysmon
+
+# Includes a modified version of the MSTIC-Sysmon repo's main.xml file by default
+config_file_present: "true"

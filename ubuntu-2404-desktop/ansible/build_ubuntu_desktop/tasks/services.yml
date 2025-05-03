@@ -1,0 +1,34 @@
+---
+# build_ubuntu_desktop/tasks/services.yml
+
+- name: Stop and disable cups service
+  ansible.builtin.service:
+    name: cups
+    state: stopped
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Stop and disable cups-browsed service
+  ansible.builtin.service:
+    name: cups-browsed
+    state: stopped
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Stop and disable avahi-daemon service
+  ansible.builtin.service:
+    name: avahi-daemon
+    state: stopped
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Stop and disable apport service
+  ansible.builtin.service:
+    name: apport
+    state: stopped
+    enabled: false
+  become: true
+  become_method: ansible.builtin.sudo

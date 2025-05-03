@@ -1,0 +1,25 @@
+---
+# install_ykman/tasks/udev.yml
+
+# https://developers.yubico.com/yubikey-manager/Device_Permissions.html
+# https://github.com/Yubico/yubikey-personalization/blob/master/69-yubikey.rules
+# https://github.com/Yubico/libu2f-host/blob/master/70-u2f.rules
+- name: Install udev rules for Yubikeys
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: /etc/udev/rules.d/
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  loop:
+    - "69-yubikey.rules"
+    - "70-u2f.rules"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Reload udevadm control
+  ansible.builtin.shell: |
+    udevadm control --reload
+  become: true
+  become_method: ansible.builtin.sudo

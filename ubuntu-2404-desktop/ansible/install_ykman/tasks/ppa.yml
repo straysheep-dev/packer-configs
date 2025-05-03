@@ -1,0 +1,28 @@
+---
+# install_ykman/tasks/ppa.yml
+
+# https://github.com/Yubico/yubikey-manager/#linux
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html#examples
+- name: Add yubico/stable PPA and install its signing key
+  ansible.builtin.apt_repository:
+    repo: ppa:yubico/stable
+  become: true
+  become_method: ansible.builtin.sudo
+
+# This task will stop here if the key does not match the expected fingerprint
+- name: Verify Yubico PPA Key Fingerprint
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      gpg /etc/apt/trusted.gpg.d/yubico-ubuntu-stable.gpg | grep -P "3653(\s)?E210(\s)?64B1(\s)?9D13(\s)?4466(\s+)?702E(\s)?43D5(\s)?C495(\s)?32CB(\s)?A1A9"
+    executable: /bin/bash
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#examples
+- name: Install yubikey-manager and Dependancies
+  ansible.builtin.apt:
+    pkg:
+      - yubikey-manager
+    state: latest
+    update_cache: true
+  become: true
+  become_method: ansible.builtin.sudo

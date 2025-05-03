@@ -1,0 +1,31 @@
+---
+# install_vscode/tasks/dnf.yml
+
+# This uses the same signing key used by Microsoft's PMC service, but requires an additional sources list
+# https://code.visualstudio.com/docs/setup/linux#_rhel-fedora-and-centos-based-distributions
+- name: "Add VSCode repository information"
+  ansible.builtin.blockinfile:
+    state: present
+    create: yes
+    append_newline: yes
+    path: /etc/yum.repos.d/vscode.repo
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      [code]
+      name=Visual Studio Code
+      baseurl=https://packages.microsoft.com/yumrepos/vscode
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+  become: yes
+  become_method: sudo
+
+- name: "Install VSCode / code (RedHat / Fedora)"
+  ansible.builtin.dnf:
+    pkg:
+      - code
+    state: latest
+  become: yes
+  become_method: sudo
