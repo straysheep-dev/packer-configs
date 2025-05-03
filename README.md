@@ -22,6 +22,7 @@ A list of resources used to create these templates.
 - [Packer Guides: Unattended Installs](https://developer.hashicorp.com/packer/guides/automatic-operating-system-installs/preseed_ubuntu)
 - [github.com/canonical/autoinstall-desktop](https://github.com/canonical/autoinstall-desktop)
 - [github.com/canonical/packer-maas Templates](https://github.com/canonical/packer-maas/blob/main/ubuntu/ubuntu-lvm.pkr.hcl)
+- [`boot_command` Keys](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#boot-configuration)
 - [`boot_command` Examples](https://developer.hashicorp.com/packer/docs/community-tools#templates)
 - [kali-vagrant Build Scripts](https://gitlab.com/kalilinux/build-scripts/kali-vagrant)
 - [Ubuntu Docs: Virtual Machine Manager](https://documentation.ubuntu.com/server/how-to/virtualisation/virtual-machine-manager/index.html)
