@@ -14,6 +14,8 @@ A list of resources used to create these templates.
 - [Packer QEMU Builder](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#basic-example)
 - [Packer QEMU Plugin UEFI Boot](https://github.com/hashicorp/packer-plugin-qemu/issues/97)
 - [Cloud-init Autoinstall Reference](https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html#user-data)
+- [Cloud-init Data Source Syntax](https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#local-filesystem-custom-location)
+- [Cloud-init: Drive with labeled filesystem](https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#source-2-drive-with-labeled-filesystem)
 - [Cloud-init user-data Reference](https://docs.cloud-init.io/en/latest/reference/examples.html)
 - [Cloud-init ISO Disk vs HTTP Server](https://cloudinit.readthedocs.io/en/latest/howto/launch_qemu.html#create-an-iso-disk)
 - [Debian Secure Boot VM Settings](https://wiki.debian.org/SecureBoot/VirtualMachine)
