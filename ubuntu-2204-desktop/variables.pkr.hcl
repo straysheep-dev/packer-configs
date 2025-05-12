@@ -4,8 +4,9 @@
 
 # [Packer Block: Variables](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/variables)
 variable "iso_storage_path" {
-  type    = string
-  default = "file:///home/user/iso/"
+  type        = string
+  default     = "/home/user/iso/ubuntu-22.04.4-live-server-amd64.iso"
+  description = "Literal path to the ISO image for this build. Change this if you don't use ~/iso/."
 }
 
 locals {
@@ -16,10 +17,22 @@ locals {
   # You can point this path to your existing ISO storage path.
   iso_target_path = "${var.iso_storage_path}"
   iso_checksum = "sha256:45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
-  iso_urls      = [
-    "${var.iso_storage_path}",
+  iso_urls     = [
+    "file://${var.iso_storage_path}",
     "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
   ]
+
+  # [Additional ISO Files](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#cd-configuration)
+  # This automatically takes all files listed and builds an ISO file on demand that attaches to the
+  # VM during the build process. Use this instead of manually building an ISO with genisoimage and
+  # attaching it with "qemuargs".
+  cd_files = [
+    "./http/meta-data",
+    "./http/user-data"
+  ]
+  # NOTE: Autoinstall will not kick off if you don't name the cd_label "cidata". You can verify this yourself by changing the cd_label.
+  # [Cloud-init: Drive with labeled filesystem](https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#source-2-drive-with-labeled-filesystem)
+  cd_label = "cidata"
 
   # [HTTP Directory Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#http-directory-configuration)
   # This will serve the files under http/ here, as cloud-init data sources.
@@ -47,20 +60,19 @@ locals {
   threads = 4 # Threads, 1 per core
 
   # [Qemu Configurations](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#qemu-specific-configuration-reference)
-  #machine_type     = "q35" # As of now, q35 is required for secure boot to be enabled
-  #accelerator      = "kvm" # This may be none, kvm, tcg, hax, hvf, whpx, or xen
-  memory           = 8192 # 4096 is a good size for testing, use 8192 or more for a persistent desktop
-  disk_size        = "64G" # 16G is a good size for testing, use 32G or 64G for a persistent VM, you can always attach more virtual disks
+  machine_type     = "q35"    # As of now, q35 is required for secure boot to be enabled
+  accelerator      = "kvm"    # This may be none, kvm, tcg, hax, hvf, whpx, or xen
+  memory           = 8192     # 4096 is a good size for testing, use 8192 or more for a persistent desktop
+  disk_size        = "64G"    # 16G is a good size for testing, use 32G or 64G for a persistent VM, you can always attach more virtual disks
   disk_discard     = "ignore" # unmap or ignore, default is ignore
-  disk_compression = true # Apply compression to the QCOW2 disk file using qemu-img convert. Defaults to false.
-  format           = "qcow2" # Either qcow2 or raw
-  qemuargs = [
-    ["-cpu", "host"],
-    ["-machine", "q35,smm=on,accel=kvm:hvf:whpx:tcg"],
-    ["-global", "driver=cfi.pflash01,property=secure,value=on"],
-    ["-object", "rng-random,filename=/dev/urandom,id=rng0"],
-    ["-cdrom", "seed.img"]
-  ]
+  disk_compression = false    # Apply compression to the QCOW2 disk file using qemu-img convert. Defaults to false.
+  format           = "qcow2"  # Either qcow2 or raw
+#  qemuargs = [
+#    ["-cpu", "host"],
+#    ["-machine", "q35,smm=on,accel=kvm:hvf:whpx:tcg"],
+#    ["-global", "driver=cfi.pflash01,property=secure,value=on"],
+#    ["-object", "rng-random,filename=/dev/urandom,id=rng0"]
+#  ]
 
   # [EFI Boot Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#efi-boot-configuration)
   # See: https://github.com/hashicorp/packer-plugin-qemu/issues/97
@@ -68,20 +80,27 @@ locals {
   efi_firmware_vars = "/usr/share/OVMF/OVMF_VARS_4M.ms.fd" # efivars with MS keys built-in, writes a copy next to the VM img file
   efi_boot          = true
 
+  # [TPM Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#qemu-specific-configuration-reference)
+  # x86: tpm-tis (default)
+  # ARM: tpm-tis-device
+  # PPC (p-series): tpm-spapr
+  vtpm            = true
+  tpm_device_type = "tpm-tis"
+
   # [Boot Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#boot-configuration)
   # Emulating literal key presses when booting the system.
   # For various boot command examples: https://developer.hashicorp.com/packer/docs/community-tools#templates
   boot_command = [
-    "<wait5>",
-    "<enter>",
-    "<wait60>",
-    "yes<enter>"
+    "e<wait>",
+    "<down><down><down><end>",
+    " autoinstall ",
+    " --- ",
+    "<f10>"
   ]
-
   # When booting from a firmware ROM that enables SecureBoot, it often takes
   # a few seconds longer for the VNC session to connect. If boot commands aren't
   # being executed, it may be because the boot wait time isn't long enough.
-  boot_wait = "30s"
+  boot_wait = "10s"
 
   # Run Ansible plays on the target machine.
   # There are two verisons of this; "ansible" and "ansible-local". The latter

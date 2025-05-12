@@ -22,6 +22,9 @@ source "qemu" "ubuntu-2204-desktop" {
   iso_checksum      = "${local.iso_checksum}"
   iso_urls          = "${local.iso_urls}"
 
+  cd_files          = "${local.cd_files}"
+  cd_label          = "${local.cd_label}"
+
   #http_directory   = "${local.http_directory}"
   #http_port_min    = "${local.http_port_min}"
   #http_port_max    = "${local.http_port_max}"
@@ -39,18 +42,21 @@ source "qemu" "ubuntu-2204-desktop" {
   cores             = "${local.cores}"
   threads           = "${local.threads}"
 
-  #machine_type     = "${local.machine_type}"
-  #accelerator      = "${local.accelerator}"
+  machine_type     = "${local.machine_type}"
+  accelerator      = "${local.accelerator}"
   memory            = "${local.memory}"
   disk_size         = "${local.disk_size}"
   disk_discard      = "${local.disk_discard}"
   disk_compression  = "${local.disk_compression}"
   format            = "${local.format}"
-  qemuargs          = "${local.qemuargs}"
+  #qemuargs          = "${local.qemuargs}"
 
   efi_firmware_code = "${local.efi_firmware_code}"
   efi_firmware_vars = "${local.efi_firmware_vars}"
   efi_boot          = "${local.efi_boot}"
+
+  vtpm              = "${local.vtpm}"
+  tpm_device_type   = "${local.tpm_device_type}"
 
   boot_command = "${local.boot_command}"
   boot_wait = "${local.boot_wait}"
