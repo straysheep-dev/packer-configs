@@ -18,32 +18,32 @@ variable "vm_name" {
   default = "kali-linux"
 }
 
-variable "vm_hostname"  {
+variable "vm_hostname" {
   type    = string
   default = "kali"
 }
 
-variable "iso_urls" {
-    type    = list(string)
-    default = [
-    "file:///home/user/iso/kali-linux-2025.1a-installer-amd64.iso",
-    "https://cdimage.kali.org/kali-2025.1a/kali-linux-2025.1a-installer-amd64.iso"
-  ]
+variable "iso_url" {
+  type        = string
+  default     = "https://cdimage.kali.org/kali-2025.1c/kali-linux-2025.1c-installer-amd64.iso"
+  description = "URL pointing to the ISO image for this build. This can be a local path, see build.sh for examples."
 }
 
 variable "iso_checksum" {
-    type    = string
-    default = "5c3e195d8e8c5857d75e5c82df861852de0063c54f9cd9f9cba6e29be53367fb"
+  type        = string
+  default     = "2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a"
+  description = "SHA256SUM of the ISO file."
 }
 
 variable "iso_storage_path" {
-    type    = string
-    default = "/home/user/iso/"
+  type    = string
+  default = "/home/user/iso/kali-linux-2025.1c-installer-amd64.iso"
+  description = "Where the ISO file is saved to disk, only if downloading is necessary. This should be modified here or via build.sh."
 }
 
 source "qemu" "kali-linux" {
-  accelerator        = "kvm"
-  boot_command       = [
+  accelerator = "kvm"
+  boot_command = [
     "e<wait>",
     "<down><down><down><end>",
     " --- ",
@@ -70,7 +70,8 @@ source "qemu" "kali-linux" {
   format             = "qcow2"
   http_directory     = "http"
   iso_checksum       = "sha256:${var.iso_checksum}"
-  iso_urls           = "${var.iso_urls}"
+  iso_target_path    = "${var.iso_storage_path}"
+  iso_url            = "${var.iso_url}"
   memory             = "4096"
   output_directory   = "build"
   shutdown_command   = "echo 'packer' | sudo -S shutdown -P now"
@@ -85,7 +86,7 @@ build {
   sources = ["source.qemu.kali-linux"]
 
   provisioner "shell" {
-      inline = ["echo 'packer' | sudo -S apt update; sudo -S apt full-upgrade -y"]
+    inline = ["echo 'packer' | sudo -S apt update; sudo -S apt full-upgrade -y"]
   }
 
   provisioner "ansible" {

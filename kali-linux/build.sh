@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Build the VM
+
 # Change the hostname if necessary
 VM_HOSTNAME="kali-$(cat /proc/sys/kernel/random/uuid | cut -d '-' -f1)"
 
-# Change the iso_urls paths and iso_checksum as needed
+# Change to PACKER_LOG=1 for debug output
 
+PACKER_LOG=0 \
 packer build \
     -var vm_hostname="${VM_HOSTNAME}" \
+    -var "iso_url=${HOME}/iso/kali-linux-2025.1c-installer-amd64.iso" \
+    -var "iso_checksum=2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a" \
     -only="kali-linux.qemu.kali-linux" \
     kali-linux.pkr.hcl
