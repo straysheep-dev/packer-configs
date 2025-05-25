@@ -1,4 +1,0 @@
----
-# build_kali_desktop/tasks/accounts.yml
-
-# Create a limited user for ssh reverse tunnels

@@ -1,9 +1,0 @@
----
-# tasks file for install_sysmon
-
-# Will install and configure Sysmon on any system once the "configure_microsoft_repos" role is executed
-- include_tasks: linux.yml
-  when: ansible_facts['system'] == "Linux"
-
-- include_tasks: windows.yml
-  when: ansible_facts['os_family'] == "Windows"

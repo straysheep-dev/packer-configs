@@ -1,4 +1,0 @@
----
-# defaults file for configure_ssh
-
-ssh_config_choice: "compliance" # Options are minimal, compliance.

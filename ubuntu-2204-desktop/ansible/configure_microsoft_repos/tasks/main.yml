@@ -1,9 +1,0 @@
----
-# tasks file for configure_microsoft_repos
-
-- include_tasks: apt.yml
-  when: (ansible_facts['os_family'] == "Debian") and
-        (ansible_facts['distribution'] != "Kali") # Kali requires some additional logic to obtain the correct Debian version available by Microsoft
-
-- include_tasks: dnf.yml
-  when: ansible_facts['os_family'] == "RedHat"

@@ -19,4 +19,11 @@
     # remotegroup
   roles:
     # Uncomment roles to run
-    - role: "install_chrome"
+#    - role: "../../ansible-configs/build_kali_desktop"
+    - role: "../../ansible-configs/configure_gnupg"
+    - role: "../../ansible-configs/configure_microsoft_repos"
+    - role: "../../ansible-configs/configure_ssh"
+    - role: "../../ansible-configs/install_auditd"
+    - role: "../../ansible-configs/install_chrome"
+    - role: "../../ansible-configs/install_unbound"
+    - role: "../../ansible-configs/install_vscode"

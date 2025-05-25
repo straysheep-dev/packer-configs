@@ -1,7 +1,0 @@
----
-# defaults file for configure_microsoft_repos
-
-# Set this to true to prioritize the Microsoft feed over your default package archive's feed.
-# You'd do this if for example you prefer the .NET version packaged by Microsoft.
-# Defaults to "false" to prevent .NET version conflicts with other packages in your package manager not maintained by Microsoft.
-prioritize_microsoft_feed: "false"

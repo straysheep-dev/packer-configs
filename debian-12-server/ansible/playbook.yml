@@ -19,7 +19,7 @@
     # remotegroup
   roles:
     # Uncomment roles to run
-    - role: "configure_gnupg"
-    - role: "configure_ssh"
-    - role: "install_unbound"
-    - role: "install_sysmon"
+    - role: "../../ansible-configs/configure_gnupg"
+    - role: "../../ansible-configs/configure_ssh"
+    - role: "../../ansible-configs/install_unbound"
+    - role: "../../ansible-configs/install_sysmon"

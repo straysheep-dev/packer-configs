@@ -1,7 +1,0 @@
----
-# tasks file for install_auditd
-# install_auditd/tasks/main.yml
-- include_tasks: install-auditd.yml
-
-- include_tasks: install-laurel.yml
-  when: install_laurel == "true"
