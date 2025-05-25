@@ -3,24 +3,32 @@
 # [Input Variables and local variables](https://developer.hashicorp.com/packer/guides/hcl/variables)
 
 # [Packer Block: Variables](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/variables)
+variable "iso_url" {
+  type        = string
+  default     = "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
+  description = "URL pointing to the ISO image for this build. This can be a local path, see build.sh for examples."
+}
+
+variable "iso_checksum" {
+  type        = string
+  default     = "45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
+  description = "SHA256SUM of the ISO file."
+}
+
 variable "iso_storage_path" {
   type        = string
   default     = "/home/user/iso/ubuntu-22.04.4-live-server-amd64.iso"
-  description = "Literal path to the ISO image for this build. Change this if you don't use ~/iso/."
+  description = "Where the ISO file is saved to disk, only if downloading is necessary. This should be modified here or via build.sh."
 }
 
 locals {
   vm_name = "ubuntu-2204-desktop"
 
   # [ISO Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#iso-configuration)
-  # The iso_target_path is where the ISO file is saved to disk locally.
-  # You can point this path to your existing ISO storage path.
+  # The iso_target_path is where the ISO file is saved to disk locally if you need to download it.
   iso_target_path = "${var.iso_storage_path}"
-  iso_checksum = "sha256:45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
-  iso_urls     = [
-    "file://${var.iso_storage_path}",
-    "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
-  ]
+  iso_checksum    = "sha256:${var.iso_checksum}"
+  iso_url         = "${var.iso_url}"
 
   # [Additional ISO Files](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#cd-configuration)
   # This automatically takes all files listed and builds an ISO file on demand that attaches to the
@@ -45,12 +53,12 @@ locals {
   # Where the resulting artifacts from a build are written
   output_directory = "build"
   shutdown_command = "echo 'ubuntu' | sudo -S shutdown -P now" # This is echoing the password "ubuntu" over to sudo -S shutdown ...
-  headless         = false # Set to true if you are running Packer on a Linux server without a GUI, if you are connected via SSH, or running a CI/CD workflow
+  headless         = false                                     # Set to true if you are running Packer on a Linux server without a GUI, if you are connected via SSH, or running a CI/CD workflow
 
   # [SSH Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#optional-ssh-fields:)
-  ssh_password         = "ubuntu"
-  ssh_username         = "user1"
-  ssh_timeout          = "60m"
+  ssh_password = "ubuntu"
+  ssh_username = "user1"
+  ssh_timeout  = "60m"
   #ssh_private_key_file = "~/.ssh/id_rsa" # Path to a private key file, you can use ~ in the path string.
 
   # [CPU Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#smp-configuration)
@@ -67,12 +75,12 @@ locals {
   disk_discard     = "ignore" # unmap or ignore, default is ignore
   disk_compression = false    # Apply compression to the QCOW2 disk file using qemu-img convert. Defaults to false.
   format           = "qcow2"  # Either qcow2 or raw
-#  qemuargs = [
-#    ["-cpu", "host"],
-#    ["-machine", "q35,smm=on,accel=kvm:hvf:whpx:tcg"],
-#    ["-global", "driver=cfi.pflash01,property=secure,value=on"],
-#    ["-object", "rng-random,filename=/dev/urandom,id=rng0"]
-#  ]
+  #  qemuargs = [
+  #    ["-cpu", "host"],
+  #    ["-machine", "q35,smm=on,accel=kvm:hvf:whpx:tcg"],
+  #    ["-global", "driver=cfi.pflash01,property=secure,value=on"],
+  #    ["-object", "rng-random,filename=/dev/urandom,id=rng0"]
+  #  ]
 
   # [EFI Boot Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#efi-boot-configuration)
   # See: https://github.com/hashicorp/packer-plugin-qemu/issues/97
@@ -118,10 +126,10 @@ locals {
   # That is easily configured in the user-data section of the cloud-init config.
   # These actions could be moved to an Ansible role.
   inline = [
-      "sudo sed -i /etc/default/grub -e 's/GRUB_CMDLINE_LINUX_DEFAULT=\".*/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"/'",
-      "sudo update-grub",
-      "sudo apt update",
-      "sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt full-upgrade -y",
-      "sudo apt install -y ubuntu-desktop-minimal"
+    "sudo sed -i /etc/default/grub -e 's/GRUB_CMDLINE_LINUX_DEFAULT=\".*/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"/'",
+    "sudo update-grub",
+    "sudo apt update",
+    "sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt full-upgrade -y",
+    "sudo apt install -y ubuntu-desktop-minimal"
   ]
 }

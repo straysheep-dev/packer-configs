@@ -16,50 +16,50 @@ packer {
 
 # [Packer Block: Source](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/source)
 source "qemu" "ubuntu-2204-desktop" {
-  vm_name           = "${local.vm_name}"
+  vm_name = "${local.vm_name}"
 
-  iso_target_path   = "${var.iso_storage_path}"
-  iso_checksum      = "${local.iso_checksum}"
-  iso_urls          = "${local.iso_urls}"
+  iso_target_path = "${local.iso_target_path}"
+  iso_checksum    = "${local.iso_checksum}"
+  iso_url         = "${local.iso_url}"
 
-  cd_files          = "${local.cd_files}"
-  cd_label          = "${local.cd_label}"
+  cd_files = "${local.cd_files}"
+  cd_label = "${local.cd_label}"
 
   #http_directory   = "${local.http_directory}"
   #http_port_min    = "${local.http_port_min}"
   #http_port_max    = "${local.http_port_max}"
 
-  output_directory  = "${local.output_directory}"
-  shutdown_command  = "${local.shutdown_command}"
-  headless          = "${local.headless}"
+  output_directory = "${local.output_directory}"
+  shutdown_command = "${local.shutdown_command}"
+  headless         = "${local.headless}"
 
-  ssh_password      = "${local.ssh_password}"
-  ssh_username      = "${local.ssh_username}"
-  ssh_timeout       = "${local.ssh_timeout}"
+  ssh_password = "${local.ssh_password}"
+  ssh_username = "${local.ssh_username}"
+  ssh_timeout  = "${local.ssh_timeout}"
 
   #cpus             = "${local.cpus}"
-  sockets           = "${local.sockets}"
-  cores             = "${local.cores}"
-  threads           = "${local.threads}"
+  sockets = "${local.sockets}"
+  cores   = "${local.cores}"
+  threads = "${local.threads}"
 
   machine_type     = "${local.machine_type}"
   accelerator      = "${local.accelerator}"
-  memory            = "${local.memory}"
-  disk_size         = "${local.disk_size}"
-  disk_discard      = "${local.disk_discard}"
-  disk_compression  = "${local.disk_compression}"
-  format            = "${local.format}"
+  memory           = "${local.memory}"
+  disk_size        = "${local.disk_size}"
+  disk_discard     = "${local.disk_discard}"
+  disk_compression = "${local.disk_compression}"
+  format           = "${local.format}"
   #qemuargs          = "${local.qemuargs}"
 
   efi_firmware_code = "${local.efi_firmware_code}"
   efi_firmware_vars = "${local.efi_firmware_vars}"
   efi_boot          = "${local.efi_boot}"
 
-  vtpm              = "${local.vtpm}"
-  tpm_device_type   = "${local.tpm_device_type}"
+  vtpm            = "${local.vtpm}"
+  tpm_device_type = "${local.tpm_device_type}"
 
   boot_command = "${local.boot_command}"
-  boot_wait = "${local.boot_wait}"
+  boot_wait    = "${local.boot_wait}"
 }
 
 # [Packer Block: Build](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/blocks/build)
@@ -68,7 +68,7 @@ build {
   sources = ["source.qemu.ubuntu-2204-desktop"]
 
   provisioner "ansible" {
-    playbook_file = "${local.playbook_file}"
+    playbook_file   = "${local.playbook_file}"
     extra_arguments = "${local.extra_arguments}"
   }
 
