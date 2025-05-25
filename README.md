@@ -4,8 +4,24 @@
 
 A collection of Packer templates for various uses. These were written in a way that should help you understand `packer` by looking at how they work, and expanding on them.
 
+This project uses the [ansible-roles](https://github.com/straysheep-dev/ansible-configs) repo as a submodule. To clone this project *with* any submodules:
+
+```bash
+git clone --recurse-submodules git@github.com:straysheep-dev/packer-configs.git
+```
+
+To apply the latest updates from `ansible-roles` to this repo:
+
+```bash
+cd ansible-roles/
+git pull
+cd ../
+git add ansible-roles
+git commit -S -m "<commit-message>"
+```
+
 > [!NOTE]
-> The status for ansible-lint is from the [straysheep-dev/ansible-configs](https://github.com/straysheep-dev/ansible-configs) repo. These roles will always be sync'd from there, unmodified. The CI workflow here appears to have issues even with the `working_directory:` argument.
+> The status for ansible-lint is from the [straysheep-dev/ansible-configs](https://github.com/straysheep-dev/ansible-configs) repo. These roles will always be sync'd from there, unmodified. The CI workflow here appeared to have issues even with the `working_directory:` argument before these roles were moved to a submodule.
 
 ## Resources
 
@@ -29,6 +45,7 @@ A list of resources used to create these templates.
 - [kali-vagrant Build Scripts](https://gitlab.com/kalilinux/build-scripts/kali-vagrant)
 - [Ubuntu Docs: Virtual Machine Manager](https://documentation.ubuntu.com/server/how-to/virtualisation/virtual-machine-manager/index.html)
 - [Support added for internal snapshots of UEFI VM's in virt-manager](https://github.com/virt-manager/virt-manager/issues/851)
+- [git-scm.com: Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 
 ## Getting Started
