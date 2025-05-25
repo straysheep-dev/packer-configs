@@ -3,7 +3,7 @@
 # Build the VM
 
 # Change the hostname if necessary
-VM_HOSTNAME="kali-$(cat /proc/sys/kernel/random/uuid | cut -d '-' -f1)"
+VM_HOSTNAME="kali-$(cut -d '-' -f1 < /proc/sys/kernel/random/uuid)"
 
 # Change to PACKER_LOG=1 for debug output
 

@@ -87,7 +87,7 @@ virt-install \
   --rng /dev/urandom \
   --network network="${vm_net}",model=virtio \
   --video qxl \
-  --channel unix,target.type="virtio",target.name="org.qemu.guest_agent.0"
+  --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0
 
 echo "[*]VM imported and booting, waiting to shutdown..."
 while (virsh list --all | grep "${vm_name}" | grep running >/dev/null); do
