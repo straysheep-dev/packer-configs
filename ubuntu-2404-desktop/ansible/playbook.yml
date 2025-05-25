@@ -19,12 +19,12 @@
     # remotegroup
   roles:
     # Uncomment roles to run
-    - role: "build_ubuntu_desktop"
-    - role: "configure_gnupg"
-    - role: "configure_microsoft_repos"
-    - role: "install_chrome"
-    - role: "install_powershell"
-    - role: "install_sysmon"
-    - role: "install_unbound"
-    - role: "install_vscode"
-    - role: "install_ykman"
+    - role: "../../ansible-configs/build_ubuntu_desktop"
+    - role: "../../ansible-configs/configure_systemd_resolved"
+    - role: "../../ansible-configs/configure_gnupg"
+    - role: "../../ansible-configs/configure_microsoft_repos"
+    - role: "../../ansible-configs/install_chrome"
+    - role: "../../ansible-configs/install_powershell"
+    - role: "../../ansible-configs/install_sysmon"
+    - role: "../../ansible-configs/install_vscode"
+    - role: "../../ansible-configs/install_ykman"

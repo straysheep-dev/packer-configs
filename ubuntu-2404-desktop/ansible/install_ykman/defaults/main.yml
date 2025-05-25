@@ -1,6 +1,0 @@
----
-# defaults file for install_ykman
-
-# Set to true to use the Ubuntu PPA archive instead of pipx
-# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html#conditionals-based-on-variables
-use_ppa: false
