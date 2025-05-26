@@ -12,11 +12,18 @@ crash.log
 # version control as they are data points which are potentially sensitive and
 # subject to change depending on the environment.
 #
-*.pkrvars.hcl
+#*.pkrvars.hcl
+*secrets.pkrvars.hcl
+
+# Ansible vault files
+# vault.example.txt is included as a demo file
+*vault.txt
+*vault.yml
 
 # For build files and machine images
 *.box
 build/
+build_*
 
 # For cloud-init ISO images created with genisoimage
 seed.img
