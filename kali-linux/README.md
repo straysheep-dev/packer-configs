@@ -2,11 +2,22 @@
 
 A packer template for building Kali Linux with UEFI boot.
 
-There are three main files:
+This template is split into two forms:
+
+**JSON**
+
+*The original JSON with some modifications.*
 
 - `kali-linux.json`: The template in JSON format
 - `variables.json`: The JSON template variables, these could also work with the HCL template
-- `kali-linux.pkr.hcl`: A combination of both JSON files in HCL format
+
+**HCL**
+
+*A new port to HCL, abstracted for easier maintenance and customization.*
+
+- `kali-linux.pkr.hcl`: The builder blocks ported to HCL, mostly static values
+- `variables.pkr.hcl`: The variable blocks ported to HCL, initializes variables for `.pkrvars.hcl` files to modify, mostly static values
+- `kali-*.pkrvars.hcl`: These are the files you can copy and modify to create custom builds as needed
 
 Kali is consistent enough in its boot parameters despite being a rolling-release distro, that this single template should work fine across a number of the recent ISOs. This is the assumption based on this template being built from the [kali-vagrant build scripts](https://gitlab.com/kalilinux/build-scripts/kali-vagrant). It seems to imply that template could work with any Kali ISO.
 
@@ -77,20 +88,30 @@ packer build \
 The key differences here from the original kali-vagrant build files include:
 
 - This build is a port of the JSON template to the HCL file format (created using `packer hcl2_upgrade kali-linux.json`)
+- Abstracted the template into three parts: build blocks, static variable blocks, and custom variable blocks
 - The firmware is set to UEFI rather than BIOS
 - Swaps the Vagrant steps for Ansible role deployment for additional customization
 
+> [!NOTE]
+> You will need to specify the var-file you'd like to customize the build with, for example, `-var-file kali-2025.1c-wireless.pkrvars.hcl`.
+
 ```bash
-# Initialize packer
-packer init .
+# Build the VM
 
-VM_HOSTNAME="kali-$(cat /proc/sys/kernel/random/uuid | cut -d '-' -f1)"
+# Change the hostname if necessary
+VM_HOSTNAME="kali-$(cut -d '-' -f1 < /proc/sys/kernel/random/uuid)"
 
-# Run the build process for QEMU
+# Change to PACKER_LOG=1 for debug output
+
+PACKER_LOG=0 \
 packer build \
     -var vm_hostname="${VM_HOSTNAME}" \
+    -var "iso_url=${HOME}/iso/kali-linux-2025.1c-installer-amd64.iso" \
+    -var "iso_checksum=2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a" \
+    -var-file kali-2025.1c-wireless.pkrvars.hcl \
     -only="kali-linux.qemu.kali-linux" \
-    kali-linux.pkr.hcl
+    .
+
 ```
 
 

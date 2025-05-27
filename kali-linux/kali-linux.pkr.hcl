@@ -13,85 +13,45 @@ packer {
   }
 }
 
-variable "vm_name" {
-  type    = string
-  default = "kali-linux"
-}
-
-variable "vm_hostname" {
-  type    = string
-  default = "kali"
-}
-
-variable "iso_url" {
-  type        = string
-  default     = "https://cdimage.kali.org/kali-2025.1c/kali-linux-2025.1c-installer-amd64.iso"
-  description = "URL pointing to the ISO image for this build. This can be a local path, see build.sh for examples."
-}
-
-variable "iso_checksum" {
-  type        = string
-  default     = "2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a"
-  description = "SHA256SUM of the ISO file."
-}
-
-variable "iso_storage_path" {
-  type    = string
-  default = "/home/user/iso/kali-linux-2025.1c-installer-amd64.iso"
-  description = "Where the ISO file is saved to disk, only if downloading is necessary. This should be modified here or via build.sh."
-}
-
 source "qemu" "kali-linux" {
-  accelerator = "kvm"
-  boot_command = [
-    "e<wait>",
-    "<down><down><down><end>",
-    " --- ",
-    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-    "preseed/url/checksum=c90fd407f89b72924c15a2f50bcec0b3 ",
-    "locale=en_US ",
-    "keymap=us ",
-    "hostname=${var.vm_hostname} ",
-    "domain='' ",
-    " --- ",
-    "<f10>"
-  ]
-  cpus               = "4"
-  disk_cache         = "unsafe"
-  disk_compression   = true
-  disk_detect_zeroes = "unmap"
-  disk_discard       = "unmap"
-  disk_image         = false
-  disk_interface     = "virtio-scsi"
-  disk_size          = "64G"
-  efi_boot           = true
-  efi_firmware_code  = "/usr/share/OVMF/OVMF_CODE_4M.fd"
-  efi_firmware_vars  = "/usr/share/OVMF/OVMF_VARS_4M.fd"
-  format             = "qcow2"
-  http_directory     = "http"
-  iso_checksum       = "sha256:${var.iso_checksum}"
-  iso_target_path    = "${var.iso_storage_path}"
-  iso_url            = "${var.iso_url}"
-  memory             = "4096"
-  output_directory   = "build"
-  shutdown_command   = "echo 'packer' | sudo -S shutdown -P now"
-  ssh_password       = "packer"
-  ssh_timeout        = "60m"
-  ssh_username       = "kali"
-  vm_name            = "${var.vm_name}"
+  accelerator        = "${local.accelerator}"
+  boot_command       = "${local.boot_command}"
+  cpus               = "${local.cpus}"
+  disk_cache         = "${local.disk_cache}"
+  disk_compression   = "${local.disk_compression}"
+  disk_detect_zeroes = "${local.disk_detect_zeroes}"
+  disk_discard       = "${local.disk_discard}"
+  disk_image         = "${local.disk_image}"
+  disk_interface     = "${local.disk_interface}"
+  disk_size          = "${local.disk_size}"
+  efi_boot           = "${local.efi_boot}"
+  efi_firmware_code  = "${local.efi_firmware_code}"
+  efi_firmware_vars  = "${local.efi_firmware_vars}"
+  format             = "${local.format}"
+  http_directory     = "${local.http_directory}"
+  iso_checksum       = "${local.iso_checksum}"
+  iso_target_path    = "${local.iso_target_path}"
+  iso_url            = "${local.iso_url}"
+  memory             = "${local.memory}"
+  output_directory   = "${local.output_directory}"
+  shutdown_command   = "${local.shutdown_command}"
+  ssh_password       = "${local.ssh_password}"
+  ssh_timeout        = "${local.ssh_timeout}"
+  ssh_username       = "${local.ssh_username}"
+  vm_name            = "${local.vm_name}"
 }
 
 build {
-  name    = "${var.vm_name}"
+  name    = "${local.vm_name}"
   sources = ["source.qemu.kali-linux"]
 
   provisioner "shell" {
-    inline = ["echo 'packer' | sudo -S apt update; sudo -S apt full-upgrade -y"]
+    inline = "${local.inline}"
   }
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "ansible_become_password=packer"]
-    playbook_file   = "./ansible/playbook.yml"
+    extra_arguments = "${local.extra_arguments}"
+    playbook_file   = "${local.playbook_file}"
   }
 
 }

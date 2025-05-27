@@ -14,6 +14,7 @@
 # https://libvirt.org/formatdomain.html#tpm-device
 
 vm_name=''
+src_path='build_kali-linux'
 dest_path=''
 vm_os='debian12'
 vm_vcpus='4'
@@ -46,8 +47,8 @@ if virsh list --all | grep -Pq "$vm_name"; then
   exit 1
 fi
 
-if ! [ -d ./build ]; then
-  echo "[*]Change to packer template directory before executing."
+if ! [ -d ./"${src_path}" ]; then
+  echo "[*]Change to packer template directory where ${src_path} exists before executing."
   exit
 fi
 
@@ -62,8 +63,8 @@ sudo mkdir -p "${dest_path}"/qemu/nvram
 # Move the VM disk image and EFI variables into the correct virt-manager paths.
 # The build image file name should always be "kali-linux", we change this when it's imported into virt-manager using $vm_name here
 echo "[*]Copying VM files to virt-manager path..."
-sudo cp build/kali-linux "${dest_path}"/images/"${vm_name}".qcow2
-sudo cp build/efivars.fd "${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd
+sudo cp "${src_path}"/kali-linux "${dest_path}"/images/"${vm_name}".qcow2
+sudo cp "${src_path}"/efivars.fd "${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd
 
 # Set the ownership to `libvirt-qemu:kvm` (this was done on an Ubuntu host, your user:group may be different).
 echo "[*]Changing ownership to libvirt-qemu:kvm..."
