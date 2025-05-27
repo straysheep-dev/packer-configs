@@ -31,29 +31,36 @@ jobs:
       - name: Run `packer init`
         id: init
         run: |
-          for path in ubuntu-* kali-* debian-*
+          for path in ubuntu-* kali-* debian-* ubuntu/ubuntu-cloudinit
           do
             cd "$path"
             packer init .
             cd -
           done
 
+      # The -recursive option will cover the entire repo
       - name: Run `packer fmt`
         id: fmt
         run: |
-          for path in ubuntu-* kali-* debian-*
-          do
-            cd "$path"
-            packer fmt .
-            cd -
-          done
+          packer fmt -recursive .
 
+      # Includes a fix to handle .pkrvars.hcl files
       - name: Run `packer validate`
         id: validate
         run: |
-          for path in ubuntu-* kali-* debian-*
+          for path in ubuntu-* debian-*
           do
             cd "$path"
             packer validate .
+            cd -
+          done
+
+          for path in ubuntu/ubuntu-cloudinit kali-*
+          do
+            cd "$path"
+            for file in ./*.pkrvars.hcl
+            do
+              packer validate -var-file "$file" .
+            done
             cd -
           done
