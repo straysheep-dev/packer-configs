@@ -10,7 +10,7 @@ playbook_file = "../ansible/ubuntu-22.04-desktop.yml"
 
 extra_arguments = [
   "--extra-vars",
-  "@../ansible/vault.txt",
+  "@../ansible/vault.example.txt",
   "--vault-password-file=../ansible/pwfile"
 ]
 
