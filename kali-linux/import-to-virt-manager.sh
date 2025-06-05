@@ -14,9 +14,9 @@
 # https://libvirt.org/formatdomain.html#tpm-device
 
 vm_name=''
-src_path='build_kali-linux'
+src_path=''
 dest_path=''
-vm_os='debian12'
+vm_os=''
 vm_vcpus='4'
 vm_memory='8192' # 2048, 4096, 8192, 16384
 vm_net='default'
@@ -27,10 +27,26 @@ if ! groups | grep -Pq '\blibvirt\b'; then
 fi
 
 if [[ "$vm_name" == '' ]]; then
-  echo "[*]Please set a vm_name."
+  echo "[*]Please choose what this VM will be named in virt-manager."
   echo ""
   until [[ "$vm_name" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
     read -rp "[Enter a VM name]: " -e -i 'kali-linux' vm_name
+  done
+fi
+
+if [[ "$vm_os" == '' ]]; then
+  echo "[*]Please set the os type for virt-manager, effectively the os version."
+  echo ""
+  until [[ "$vm_os" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
+    read -rp "[Kali is often the latest Debian verison]: " -e -i 'debian12' vm_os
+  done
+fi
+
+if [[ "$src_path" == '' ]]; then
+  echo "[*]What is the name of the output directory containing the disk image file?"
+  echo ""
+  until [[ "$src_path" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
+    read -rp "[Enter output_directory]: " -e -i 'build_kali-linux' src_path
   done
 fi
 

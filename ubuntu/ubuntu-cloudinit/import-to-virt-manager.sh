@@ -38,7 +38,7 @@ if [[ "$vm_os" == '' ]]; then
   echo "[*]Please set the os type for virt-manager, effectively the os version."
   echo ""
   until [[ "$vm_os" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
-    read -rp "[ubuntu[14.04|22.04|etc...]]: " -e -i 'ubuntu22.04' vm_os
+    read -rp "[ubuntu14.04,ubuntu22.04, ...]: " -e -i 'ubuntu22.04' vm_os
   done
 fi
 
