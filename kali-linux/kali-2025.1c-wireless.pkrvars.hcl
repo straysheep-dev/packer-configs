@@ -12,9 +12,7 @@ playbook_file = "./ansible/kali-linux.yml"
 extra_arguments = [
   "--extra-vars",
   "@./ansible/vault.example.txt",
-  "--vault-password-file=./ansible/pwfile",
-  "-e",
-  "'{\"core_tools\":true,\"wireless_tools\":true}'"
+  "--vault-password-file=./ansible/pwfile"
 ]
 
 inline = [
