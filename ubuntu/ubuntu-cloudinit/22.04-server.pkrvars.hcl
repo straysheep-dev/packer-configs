@@ -1,6 +1,9 @@
 # 22.04-server.pkrvars.hcl
 
-disk_file = "ubuntu-2204.qcow2"
+vm_name = "ubuntu-2204"
+
+iso_url      = "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
+iso_checksum = "45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
 
 iso_storage_path = "/home/user/iso/ubuntu-22.04.4-live-server-amd64.iso"
 

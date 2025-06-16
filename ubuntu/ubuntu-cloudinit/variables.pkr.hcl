@@ -1,8 +1,16 @@
 # variables.pkr.hcl
 
-variable "disk_file" {
+variable "vm_name" {
   type        = string
   description = "Name of the virtual machine. Affects disk image output files and hostname."
+}
+variable "iso_url" {
+  type        = string
+  description = "Download URL to retrieve the ISO file."
+}
+variable "iso_checksum" {
+  type        = string
+  description = "SHA256SUM of the ISO file."
 }
 variable "iso_storage_path" {
   type        = string
@@ -26,13 +34,13 @@ variable "inline" {
 }
 
 locals {
-  vm_name = "${var.disk_file}"
+  vm_name = "${var.vm_name}.qcow2"
 
   iso_target_path = "${var.iso_storage_path}"
-  iso_checksum    = "sha256:45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
+  iso_checksum    = "sha256:${var.iso_checksum}"
   iso_urls = [
     "file://${var.iso_storage_path}",
-    "https://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.4-live-server-amd64.iso"
+    "${var.iso_url}"
   ]
 
   cd_files = [
