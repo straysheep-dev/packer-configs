@@ -31,7 +31,7 @@ jobs:
       - name: Run `packer init`
         id: init
         run: |
-          for path in ubuntu-* kali-* debian-* ubuntu/ubuntu-cloudinit
+          for path in ubuntu-* kali-* debian-* ubuntu/ubuntu-cloudinit ubuntu/ubuntu-preseed
           do
             cd "$path"
             packer init .
@@ -55,7 +55,7 @@ jobs:
             cd -
           done
 
-          for path in ubuntu/ubuntu-cloudinit kali-*
+          for path in ubuntu/ubuntu-cloudinit ubuntu/ubuntu-preseed kali-*
           do
             cd "$path"
             for file in ./*.pkrvars.hcl
