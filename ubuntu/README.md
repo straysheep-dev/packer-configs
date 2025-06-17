@@ -17,12 +17,12 @@ Variable files *that change per-build* end in `.pkrvars.hcl`. These pass through
 
 Supported build inventory:
 
-- Ubuntu 14.04 Server
-- Ubuntu 16.04 Server
-- Ubuntu 18.04 Server
-- Ubuntu 20.04 Server + Desktop
-- Ubuntu 22.04 Server + Desktop
-- Ubuntu 24.04 Server + Desktop
+- [Ubuntu 14.04 Server](https://releases.ubuntu.com/14.04/)
+- [Ubuntu 16.04 Server](https://releases.ubuntu.com/16.04/)
+- [Ubuntu 18.04 Server](https://releases.ubuntu.com/18.04/)
+- [Ubuntu 20.04 Server + Desktop](https://releases.ubuntu.com/20.04/)
+- [Ubuntu 22.04 Server + Desktop](https://releases.ubuntu.com/22.04/)
+- [Ubuntu 24.04 Server + Desktop](https://releases.ubuntu.com/24.04/)
 
 > [!WARNING]
 > This directory is still a work-in-progress. Once the existing Ubuntu builds are ported over to this format, the README will contain all of their notes for reference, and any unique settings or requirements.
@@ -33,7 +33,10 @@ Supported build inventory:
 This template was built by referencing the following resources (in addition to those listed in the README at the root of this repo):
 
 - [github.com/shantanoo-desai/packer-ubuntu-server-uefi](https://github.com/shantanoo-desai/packer-ubuntu-server-uefi/blob/main/templates/ubuntu.pkr.hcl)
+- [HashiCorp QEMU Builder Options](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu)
 - [HashiCorp QEMU Builder Examples](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#basic-example)
+- [EFI Boot Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#efi-boot-configuration)
+- [github.com/hashicorp/packer-plugin-qemu/issues/97: Make UEFI Configuration Easier](https://github.com/hashicorp/packer-plugin-qemu/issues/97)
 
 The idea for the desktop templates is based on the work documentated under [github.com/canonical/autoinstall-desktop](https://github.com/canonical/autoinstall-desktop/blob/main/autoinstall.yaml), which is an excellent reference but is outdated. For example you don't need to uninstall anything (it's a preference to leave server utilities installed in the desktop environment) and the default snaps are now installed automatically with the `ubuntu-desktop-minimal` package.
 
