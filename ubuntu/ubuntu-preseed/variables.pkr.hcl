@@ -23,7 +23,7 @@ variable "output_directory" {
 variable "boot_wait" {
   type        = string
   default     = "10s"
-  description = "Duration string. ex: '1h5m2s' - The time to wait after booting the initial virtual machine before typing the boot_command."
+  description = "Duration string. ex: '1h5m2s' - The time to wait after booting the virtual machine to type the boot_command."
 }
 variable "inline" {
   type        = list(string)

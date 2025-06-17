@@ -20,6 +20,11 @@ variable "output_directory" {
   type        = string
   description = "This creates an output directory for the build files. Each output directory must be unique per-build."
 }
+variable "boot_wait" {
+  type        = string
+  default     = "10s"
+  description = "Duration string. ex: '1h5m2s' - The time to wait after booting the virtual machine to type the boot_command."
+}
 variable "playbook_file" {
   type        = string
   description = "Path to the Ansible playbook for this build. Can be a relative path."
@@ -95,7 +100,7 @@ locals {
     " --- ",
     "<f10>"
   ]
-  boot_wait = "10s"
+  boot_wait = "${var.boot_wait}"
 
   playbook_file   = "${var.playbook_file}"
   extra_arguments = "${var.extra_arguments}"
