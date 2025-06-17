@@ -20,6 +20,11 @@ variable "output_directory" {
   type        = string
   description = "This creates an output directory for the build files. Each output directory must be unique per-build."
 }
+variable "boot_wait" {
+  type        = string
+  default     = "10s"
+  description = "Duration string. ex: '1h5m2s' - The time to wait after booting the initial virtual machine before typing the boot_command."
+}
 variable "inline" {
   type        = list(string)
   description = "An array of shell commands to execute during the build."
@@ -84,7 +89,7 @@ locals {
     "<f10>"
   ]
 
-  boot_wait = "10s"
+  boot_wait = "${var.boot_wait}"
 
   inline = "${var.inline}"
 }
