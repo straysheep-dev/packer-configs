@@ -1,6 +1,10 @@
-# debian 12 server
+# debian
 
-A packer template for building a Debian 12 (Bookworm) server with UEFI boot.
+A packer template for building a Debian system with UEFI boot.
+
+Supported build inventory:
+
+- [Debian 12 Server (Bookworm)](https://cdimage.debian.org/mirror/cdimage/archive/12.10.0/amd64/iso-cd/)
 
 Resources used to work on these templates:
 

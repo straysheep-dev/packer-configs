@@ -14,8 +14,9 @@
 # https://libvirt.org/formatdomain.html#tpm-device
 
 vm_name=''
+src_path=''
 dest_path=''
-vm_os='debian12'
+vm_os=''
 vm_vcpus='4'
 vm_memory='8192' # 2048, 4096, 8192, 16384
 vm_net='default'
@@ -26,10 +27,26 @@ if ! groups | grep -Pq '\blibvirt\b'; then
 fi
 
 if [[ "$vm_name" == '' ]]; then
-  echo "[*]Please set a vm_name."
+  echo "[*]Please choose what this VM will be named in virt-manager."
   echo ""
   until [[ "$vm_name" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
-    read -rp "[Enter a VM name]: " -e -i 'debian12' vm_name
+    read -rp "[Enter a VM name]: " -e -i 'ubuntu22.04' vm_name
+  done
+fi
+
+if [[ "$vm_os" == '' ]]; then
+  echo "[*]Please set the os type for virt-manager, effectively the os version."
+  echo ""
+  until [[ "$vm_os" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
+    read -rp "[ubuntu14.04,ubuntu22.04, ...]: " -e -i 'ubuntu22.04' vm_os
+  done
+fi
+
+if [[ "$src_path" == '' ]]; then
+  echo "[*]What is the name of the output directory containing the disk image file?"
+  echo ""
+  until [[ "$src_path" =~ ^([a-zA-Z0-9._-]+){1,}$ ]]; do
+    read -rp "[Enter output_directory]: " -e -i 'build_22.04-example' src_path
   done
 fi
 
@@ -46,8 +63,8 @@ if virsh list --all | grep -Pq "$vm_name"; then
   exit 1
 fi
 
-if ! [ -d ./build ]; then
-  echo "[*]Change to packer template directory before executing."
+if ! [ -d ./"${src_path}" ]; then
+  echo "[*]Change to directory containing ${src_path} before executing."
   exit
 fi
 
@@ -60,10 +77,10 @@ sudo mkdir -p "${dest_path}"/qemu/nvram
 #sudo setfacl -R -m u:libvirt-qemu:rx "${dest_path}"
 
 # Move the VM disk image and EFI variables into the correct virt-manager paths.
-# The build image file name should always be "debian12", we change this when it's imported into virt-manager using $vm_name here
+# The build image file name should always be "ubuntu-2204-desktop", we change this when it's imported into virt-manager using $vm_name here
 echo "[*]Copying VM files to virt-manager path..."
-sudo cp build/debian12 "${dest_path}"/images/"${vm_name}".qcow2
-sudo cp build/efivars.fd "${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd
+sudo cp "${src_path}"/efivars.fd "${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd
+sudo cp "${src_path}"/*.qcow2 "${dest_path}"/images/"${vm_name}".qcow2
 
 # Set the ownership to `libvirt-qemu:kvm` (this was done on an Ubuntu host, your user:group may be different).
 echo "[*]Changing ownership to libvirt-qemu:kvm..."
@@ -82,12 +99,12 @@ virt-install \
   --disk path="${dest_path}"/images/"${vm_name}".qcow2,format=qcow2,bus=virtio \
   --import \
   --features smm.state=on \
-  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.fd,nvram="${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd \
+  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd,loader.readonly=yes,loader_secure=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.ms.fd,nvram="${dest_path}"/qemu/nvram/"${vm_name}"_VARS.fd \
   --tpm default \
   --rng /dev/urandom \
   --network network="${vm_net}",model=virtio \
   --video qxl \
-  --channel unix,target.type="virtio",target.name="org.qemu.guest_agent.0"
+  --channel spicevmc
 
 echo "[*]VM imported and booting, waiting to shutdown..."
 while (virsh list --all | grep "${vm_name}" | grep running >/dev/null); do
