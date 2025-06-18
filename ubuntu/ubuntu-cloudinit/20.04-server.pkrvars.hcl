@@ -9,6 +9,8 @@ iso_storage_path = "/home/user/iso/ubuntu-20.04.6-live-server-amd64.iso"
 
 output_directory = "build_20.04-server"
 
+boot_wait = "4s"
+
 playbook_file = "../ansible/ubuntu-20.04-server.yml"
 
 extra_arguments = [
