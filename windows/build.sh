@@ -15,7 +15,7 @@ packer build \
     -var vm_name="${vm_name}" \
     -var iso_url="${win_iso_path}" \
     -var iso_checksum="sha256:${win_iso_checksum}" \
-    -var virtio_win_iso="${virtio_iso_path}" \
+    -var virtio_win_iso="${win_iso_path}" \
     ./windows-server-2022.json
 
 # Unmount the virtio-win.iso

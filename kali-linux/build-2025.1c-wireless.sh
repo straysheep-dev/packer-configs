@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Build the VM
 
 # Change the hostname if necessary

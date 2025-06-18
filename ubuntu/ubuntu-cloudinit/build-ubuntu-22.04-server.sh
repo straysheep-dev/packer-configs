@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Build the VM
 # Change to PACKER_LOG=1 for debug output
 PACKER_LOG=0 \
