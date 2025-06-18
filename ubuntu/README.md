@@ -2,6 +2,15 @@
 
 The build templates and set of variable files in this directory are an attempt to standardize all Ubuntu images under as few "parent" templates as possible, where the "pkrvars" files and any Ansible playbooks are where the modifications happen, unique to each build. This will help reduce maintenance efforts, and improve customization behind the various build scripts here which are premade examples in the form of `bash` scripts calling `packer` with the correct variables. These scripts can be copied and modified to change the variables passed through to the builds.
 
+Supported build inventory:
+
+- [Ubuntu 14.04 Server](https://releases.ubuntu.com/14.04/)
+- [Ubuntu 16.04 Server](https://releases.ubuntu.com/16.04/)
+- [Ubuntu 18.04 Server](https://releases.ubuntu.com/18.04/) ❌
+- [Ubuntu 20.04 Server + Desktop](https://releases.ubuntu.com/20.04/) ❌
+- [Ubuntu 22.04 Server + Desktop](https://releases.ubuntu.com/22.04/)
+- [Ubuntu 24.04 Server + Desktop](https://releases.ubuntu.com/24.04/)
+
 Primary templates end in `.pkr.hcl`, are always loaded during the build, and initialize variables for the `.pkrvars.hcl` files to use.
 
 - `ubuntu-preseed.pkr.hcl` is the builder file for all preseed-based builds
@@ -14,18 +23,6 @@ Variable files *that change per-build* end in `.pkrvars.hcl`. These pass through
 > In other words, we're just separating out the `.pkr.hcl` information into two files: the **builder** blocks, and the **variable** blocks. These could be in one file but this makes them easier to read and maintain.
 >
 > The `.pkrvars.hcl` files are abstracted from the local (static) variable blocks, as these are the configurations that may change depending on which version of Ubuntu you're building, and the cusomization you'd want to add.
-
-Supported build inventory:
-
-- [Ubuntu 14.04 Server](https://releases.ubuntu.com/14.04/)
-- [Ubuntu 16.04 Server](https://releases.ubuntu.com/16.04/)
-- [Ubuntu 18.04 Server](https://releases.ubuntu.com/18.04/)
-- [Ubuntu 20.04 Server + Desktop](https://releases.ubuntu.com/20.04/)
-- [Ubuntu 22.04 Server + Desktop](https://releases.ubuntu.com/22.04/)
-- [Ubuntu 24.04 Server + Desktop](https://releases.ubuntu.com/24.04/)
-
-> [!WARNING]
-> This directory is still a work-in-progress. Once the existing Ubuntu builds are ported over to this format, the README will contain all of their notes for reference, and any unique settings or requirements.
 
 
 ## References
