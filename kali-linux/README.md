@@ -31,6 +31,23 @@ Resources used to work on these templates:
 - [Packer: Ansible Provisioner](https://developer.hashicorp.com/packer/integrations/hashicorp/ansible/latest/components/provisioner/ansible)
 
 
+## preseed.cfg Examples
+
+- [kali.org/docs: Kali Preseed Examples](https://www.kali.org/docs/general-use/kali-preseeding/)
+- [gitlab.com/kalilinux: Kali Preseed Examples Repo](https://gitlab.com/kalilinux/recipes/kali-preseed-examples)
+
+Diffing those preseed.cfg files will point to exactly what needs to change when, for example, deciding if your build will be a headless server, or what type of meta-packages to include. Reference [Debian's example-preseed.txt file](https://www.debian.org/releases/stable/example-preseed.txt) to review comments related to each argument. Most of what changes are the `tasksel` lines.
+
+For example, here's the difference between xfce-default.cfg and headless-default:
+
+```
+< tasksel tasksel/first multiselect standard,core,desktop-xfce,meta-default
+---
+> tasksel tasksel/first multiselect standard,core,meta-default
+
+```
+
+
 ## UEFI Boot Commands
 
 Translating the `boot_commands` to work with UEFI:
