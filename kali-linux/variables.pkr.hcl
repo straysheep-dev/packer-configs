@@ -30,6 +30,11 @@ variable "output_directory" {
   description = "This creates an output directory for the build files. Each output directory must be unique per-build."
 }
 
+variable "preseed_file" {
+  type        = string
+  description = "Path to a preseed.cfg file to deploy specific packages based on the build purpose."
+}
+
 variable "playbook_file" {
   type        = string
   description = "Path to the Ansible playbook for this build. Can be a relative path."
@@ -51,7 +56,7 @@ locals {
     "e<wait>",
     "<down><down><down><end>",
     " --- ",
-    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
     "preseed/url/checksum=c90fd407f89b72924c15a2f50bcec0b3 ",
     "locale=en_US ",
     "keymap=us ",
