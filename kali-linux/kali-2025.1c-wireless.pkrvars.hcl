@@ -6,6 +6,7 @@ iso_url          = "https://cdimage.kali.org/kali-2025.1c/kali-linux-2025.1c-ins
 iso_checksum     = "2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a"
 iso_storage_path = "/home/user/iso/kali-linux-2025.1c-installer-amd64.iso"
 preseed_file     = "preseed-desktop-xfce.cfg"
+preseed_checksum = "44aac3a666e502d9ec39fecf14d98e73"
 output_directory = "build_kali-linux_wireless"
 
 playbook_file = "./ansible/kali-wireless.yml"

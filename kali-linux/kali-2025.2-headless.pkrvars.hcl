@@ -6,6 +6,7 @@ iso_url          = "https://cdimage.kali.org/kali-2025.2/kali-linux-2025.2-insta
 iso_checksum     = "5723d46414b45575aa8e199740bbfde49e5b2501715ea999f0573e94d61e39d3"
 iso_storage_path = "/home/user/iso/kali-linux-2025.2-installer-amd64.iso"
 preseed_file     = "preseed-headless.cfg"
+preseed_checksum = "b0a886d0ad85918c0ced0fe7f4dab3ac"
 output_directory = "build_kali-linux_headless"
 
 playbook_file = "./ansible/kali-headless.yml"

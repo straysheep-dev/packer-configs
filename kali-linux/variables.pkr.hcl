@@ -35,6 +35,11 @@ variable "preseed_file" {
   description = "Path to a preseed.cfg file to deploy specific packages based on the build purpose."
 }
 
+variable "preseed_checksum" {
+  type        = string
+  description = "MD5SUM of the preseed file."
+}
+
 variable "playbook_file" {
   type        = string
   description = "Path to the Ansible playbook for this build. Can be a relative path."
@@ -57,7 +62,7 @@ locals {
     "<down><down><down><end>",
     " --- ",
     "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-    "preseed/url/checksum=c90fd407f89b72924c15a2f50bcec0b3 ",
+    "preseed/url/checksum=${var.preseed_checksum} ",
     "locale=en_US ",
     "keymap=us ",
     "hostname=${var.vm_hostname} ",

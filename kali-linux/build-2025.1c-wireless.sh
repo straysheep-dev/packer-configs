@@ -15,7 +15,7 @@ actions='validate build'
 
 for action in $actions
 do
-    packer build \
+    packer "$action" \
         -var vm_hostname="${VM_HOSTNAME}" \
         -var "iso_url=${HOME}/iso/kali-linux-2025.1c-installer-amd64.iso" \
         -var "iso_checksum=2f6e18d53a398e18e5961ed546ed1469fd3b9b40a368e19b361f4dd994e6843a" \
