@@ -1,3 +1,4 @@
 [submodule "ansible-configs"]
 	path = ansible-configs
 	url = git@github.com:straysheep-dev/ansible-configs.git
+	branch = main
