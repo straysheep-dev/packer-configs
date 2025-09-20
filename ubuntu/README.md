@@ -4,12 +4,12 @@ The build templates and set of variable files in this directory are an attempt t
 
 Supported build inventory:
 
-- [Ubuntu 14.04 Server](https://releases.ubuntu.com/14.04/)
-- [Ubuntu 16.04 Server](https://releases.ubuntu.com/16.04/)
+- [Ubuntu 14.04 Server](https://releases.ubuntu.com/14.04/) ✅
+- [Ubuntu 16.04 Server](https://releases.ubuntu.com/16.04/) ✅
 - [Ubuntu 18.04 Server](https://releases.ubuntu.com/18.04/) ❌
-- [Ubuntu 20.04 Server + Desktop](https://releases.ubuntu.com/20.04/) ❌
-- [Ubuntu 22.04 Server + Desktop](https://releases.ubuntu.com/22.04/)
-- [Ubuntu 24.04 Server + Desktop](https://releases.ubuntu.com/24.04/)
+- [Ubuntu 20.04 Server + Desktop](https://releases.ubuntu.com/20.04/) ⚠️
+- [Ubuntu 22.04 Server + Desktop](https://releases.ubuntu.com/22.04/) ✅
+- [Ubuntu 24.04 Server + Desktop](https://releases.ubuntu.com/24.04/) ✅
 
 Primary templates end in `.pkr.hcl`, are always loaded during the build, and initialize variables for the `.pkrvars.hcl` files to use.
 
@@ -24,6 +24,12 @@ Variable files *that change per-build* end in `.pkrvars.hcl`. These pass through
 >
 > The `.pkrvars.hcl` files are abstracted from the local (static) variable blocks, as these are the configurations that may change depending on which version of Ubuntu you're building, and the cusomization you'd want to add.
 
+> [!NOTE]
+> **iso_urls** and **iso_storage_path**
+>
+> The trick to making these templates somewhat dynamic, allowing you to point them to the latest ISO and only needing to download it once, is through two customized variables: `iso_url` and `iso_storage_path`.
+>
+> `iso_url` (singular) can be set using the `-var` option in the bash script. `iso_storage_path` is standardized to `~/iso/<iso-file>`. Both of these are valid arguments to `iso_urls` (plural), so packer will check the local `~/iso` path first, and if the file doesn't exist, it will downlaod it using the `iso_url`. You will also need to adjust the custom `iso_checksum` variable if you want to change the ISO file you're using.
 
 ## References
 
@@ -34,6 +40,7 @@ This template was built by referencing the following resources (in addition to t
 - [HashiCorp QEMU Builder Examples](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#basic-example)
 - [EFI Boot Configuration](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#efi-boot-configuration)
 - [github.com/hashicorp/packer-plugin-qemu/issues/97: Make UEFI Configuration Easier](https://github.com/hashicorp/packer-plugin-qemu/issues/97)
+- [wiki.debian.org/AutomatedUpgrade](https://wiki.debian.org/AutomatedUpgrade#Home_made_scripts)
 
 The idea for the desktop templates is based on the work documentated under [github.com/canonical/autoinstall-desktop](https://github.com/canonical/autoinstall-desktop/blob/main/autoinstall.yaml), which is an excellent reference but is outdated. For example you don't need to uninstall anything (it's a preference to leave server utilities installed in the desktop environment) and the default snaps are now installed automatically with the `ubuntu-desktop-minimal` package.
 
