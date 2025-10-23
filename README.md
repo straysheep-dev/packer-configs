@@ -4,20 +4,42 @@
 
 A collection of Packer templates for various uses. These were written in a way that should help you understand `packer` by looking at how they work, and expanding on them.
 
-This project uses the [ansible-roles](https://github.com/straysheep-dev/ansible-configs) repo as a submodule. To clone this project *with* any submodules:
+## Cloning
+
+> [!IMPORTANT]
+> This project uses the [ansible-roles](https://github.com/straysheep-dev/ansible-configs) repo and its submodules. Use `--recursive` to clone this project *with* submodules.
+
+To clone everything, recursively over SSH:
 
 ```bash
-git clone --recurse-submodules git@github.com:straysheep-dev/packer-configs.git
+# Using SSH authenticated to your GitHub account
+git clone git@github.com:straysheep-dev/packer-configs.git
+cd ansible-configs
+# Initialize all submodules, you'd do this to pull the latest changes as well
+git submodule update --init --checkout --recursive
+git submodule sync --recursive
 ```
 
-To apply the latest updates from `ansible-roles` to this repo:
+To clone everything, recursively over HTTPS:
 
 ```bash
-cd ansible-roles/
-git pull
-cd ../
-git add ansible-roles
-git commit -S -m "<commit-message>"
+# Point to HTTPS instead of SSH, unauthenticated without a GitHub account
+git clone https://github.com/straysheep-dev/packer-configs.git
+cd ansible-configs
+git -c url.https://github.com/.insteadof=ssh://git@github.com/ \
+    -c url.https://github.com/.insteadof=git@github.com: \
+    submodule update --init --checkout --recursive \
+    git submodule sync --recursive
+# Set the change for each submodule at the project level after initializing
+git submodule foreach --recursive \
+    'git config url.https://github.com/.insteadof ssh://git@github.com/
+    git config url.https://github.com/.insteadof git@github.com:'
+```
+
+If you want to update just the `ansible-configs` submodule itself to the latest commit:
+
+```bash
+git submodule update --remote
 ```
 
 > [!NOTE]
