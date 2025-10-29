@@ -67,10 +67,10 @@ locals {
   ssh_timeout  = "60m"
   #ssh_private_key_file = "~/.ssh/id_rsa" # Path to a private key file, you can use ~ in the path string.
 
-  # cpus  = 4 # This is the equivalent of sockets * cores * threads, cores are preferred over sockets for this value
+  # cpus  = 4 # This is the equivalent of (sockets * cores * threads), cores are preferred over sockets for this value
   sockets = 1 # Number of virtual CPUs
   cores   = 4 # Number of cores per CPU
-  threads = 4 # Threads, 1 per core
+  threads = 1 # Threads, 1 per core
 
   machine_type     = "q35"   # As of now, q35 is required for secure boot to be enabled
   accelerator      = "kvm"   # This may be none, kvm, tcg, hax, hvf, whpx, or xen
