@@ -126,6 +126,28 @@ Start a build. This will launch whatever is necessary to build the template, and
 packer build .
 ```
 
+## Common Issues
+
+**Debugging on the VM**
+
+Use `Alt+F3-6` to open a shell on the build VM if you have a GUI through QEMU. This is the easiest way to read logs and run any diagnostic commands.
+
+**Log Files**
+
+- Ubuntu: `/var/log/installer/`
+  - `sudo tail -F /var/log/installer/subiquity-server-*.log` can provide more information than the default output
+
+**Build Stalls During OS Install**
+
+If a build relies on networking and appears stuck, you won't have an easy time diagnosing issues from the host.
+
+> [!TIP]
+> Even with constrained resources on a build VM, a nested packer VM being built should still complete the OS install within ~10 minutes depending on the CPU speed. This will vary, but has been consistent across both Debian family OS's and Windows Server.
+
+- Attempt to ping or curl endpoints it's trying to reach
+- The host may be filtering packets (unintentionally) it's a good idea to restart the network renderer and your DNS resolver
+- Use tcpdump on the ad hoc QEMU interface and network (`10.0.2.2`)
+
 
 ## Boot Commands
 
