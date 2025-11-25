@@ -39,7 +39,12 @@ git submodule foreach --recursive \
 If you want to update just the `ansible-configs` submodule itself to the latest commit:
 
 ```bash
+# Update the ansible-configs submodule
 git submodule update --remote
+
+# Run the same command one layer down, within ansible-configs,
+# to pull the latest role files locally for use with packer
+git submodule foreach 'git submodule update --remote'
 ```
 
 > [!NOTE]
