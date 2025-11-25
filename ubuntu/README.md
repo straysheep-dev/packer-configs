@@ -57,7 +57,10 @@ The most common issues you will encounter with packer builds revolve around thes
 - network interface is different after build
 - systemd-networkd (netplan) vs NetworkManager
 
-Some of these are the cause of long boot times or the lack of a network connection on first boot. In most cases you'll want to handle setting things correctly using either the Ansible or shell provisioners. If you aren't using the classic network interface names (like `eth0`) you may have to adjust things manually after the first boot.
+Some of these are the cause of long boot times or the lack of a network connection on first boot.
+
+> [!NOTE]
+> These issues are addressed through [ansible-role-configure_networking](https://github.com/straysheep-dev/ansible-role-configure_networking).
 
 
 ## Autoinstall and Debian-preseed

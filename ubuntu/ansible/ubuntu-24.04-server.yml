@@ -21,10 +21,10 @@
     hostname_string: "packer-devops"
   roles:
     # Uncomment roles to run
-    - role: "../../ansible-configs/configure_gnupg"
-    - role: "../../ansible-configs/configure_microsoft_repos"
+    - role: "../../ansible-configs/configure_systemd_resolved"
     - role: "../../ansible-configs/configure_networking"
     - role: "../../ansible-configs/configure_ssh"
-    - role: "../../ansible-configs/configure_systemd_resolved"
+    - role: "../../ansible-configs/configure_gnupg"
+    - role: "../../ansible-configs/configure_microsoft_repos"
     - role: "../../ansible-configs/install_powershell"
     - role: "../../ansible-configs/install_sysmon"
