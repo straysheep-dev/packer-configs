@@ -1,4 +1,4 @@
-# kali-2025.1c-wireless.pkrvarc.hcl
+# kali-2025.2-headless.pkrvarc.hcl
 
 disk_file        = "kali-linux"
 vm_hostname      = "kali"
@@ -19,5 +19,5 @@ extra_arguments = [
 
 inline = [
   "echo 'packer' | sudo -S apt update",
-  "echo 'packer' | sudo -S DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt full-upgrade -y",
+  "echo 'packer' | sudo -S DEBIAN_FRONTEND=noninteractive apt full-upgrade -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'",
 ]

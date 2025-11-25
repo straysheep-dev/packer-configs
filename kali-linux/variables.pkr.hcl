@@ -82,10 +82,14 @@ locals {
   efi_firmware_code  = "/usr/share/OVMF/OVMF_CODE_4M.fd"
   efi_firmware_vars  = "/usr/share/OVMF/OVMF_VARS_4M.fd"
   format             = "qcow2"
+  headless           = false
   http_directory     = "http"
   iso_checksum       = "sha256:${var.iso_checksum}"
   iso_target_path    = "${var.iso_storage_path}"
-  iso_url            = "${var.iso_url}"
+  iso_urls = [
+    "file://${var.iso_storage_path}",
+    "${var.iso_url}"
+  ]
   memory             = "4096"
   output_directory   = "${var.output_directory}"
   shutdown_command   = "echo 'packer' | sudo -S shutdown -P now"
