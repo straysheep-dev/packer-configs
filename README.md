@@ -131,7 +131,13 @@ Start a build. This will launch whatever is necessary to build the template, and
 packer build .
 ```
 
-## Common Issues
+## Debugging Common Issues
+
+**On-Error Options**
+
+[`-on-error=<OPTION>`](https://developer.hashicorp.com/packer/docs/commands/build#on-error-cleanup) allows you to configure what packer does when it encounters an error. By default it will run the `cleanup` option, which deletes all temporary files and the VM image it was building. This makes it impossible to examine what went wrong on the VM while developing a template, but is ideal in a CI/CD scenario.
+
+> `-on-error=ask` presents a prompt and waits for you to decide to clean up, abort, or retry the failed step.
 
 **Debugging on the VM**
 
@@ -301,3 +307,53 @@ Inside each packer template folder is an `import-to-virt-manager.sh` file that w
 
 - [RedHat: Creating Guest VMs with `virt-install`](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-guest_virtual_machine_installation_overview-creating_guests_with_virt_install)
 - [RedHat: Comparison of virt-manager and virt-install Options](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-virtual_machine_installation-virt-install-virt-manager-matrix)
+
+
+## Proxmox Usage
+
+> [!NOTE]
+> These templates are currently built to work with the [qemu builder](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu), not the [proxmox builder](https://developer.hashicorp.com/packer/integrations/hashicorp/proxmox). However, this does **not** prevent you from [building on Proxmox with a dedicated "build" user](https://mayfly277.github.io/posts/GOAD-on-proxmox-part2-packer/) that can run packer.
+
+That guide uses the Proxmox packer integration and ultimately creates a Proxmox account with those groups and privileges in mind. To simply create a dedicated local build user as if this was a normal Debian server:
+
+```bash
+# Create the user, they'll have a $HOME folder
+useradd "builder"
+
+# This account needs access to the kvm group for QEMU usage
+usermod -aG kvm builder
+```
+
+You'll need to [install Packer](https://developer.hashicorp.com/packer/install), and [install Ansible](https://docs.ansible.com/projects/ansible/latest/installation_guide/intro_installation.html#pip-install) on Proxmox itself so your build user can create the machines.
+
+```bash
+# Install Packer, system-wide as root
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install packer
+
+# As the builder user
+su builder
+
+# Install Ansible
+python3 -m pip install --user ansible
+```
+
+> [!NOTE]
+> While it's better to use a dedicated build VM, almost as a GitHub Actions runner, this guide is considering the fact that you have to provision that build VM to even get started. This is one option to do that.
+
+One major difference when working directly on Proxmox is the EFI variables for:
+
+```hcl
+  efi_firmware_code = "/usr/share/OVMF/OVMF_CODE_4M.secboot.fd"
+  efi_firmware_vars = "/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
+```
+
+These will need to point to:
+
+```hcl
+  efi_firmware_code = "/usr/share/kvm/OVMF_CODE-pure-efi.fd"
+  efi_firmware_vars = "/usr/share/kvm/OVMF_VARS-pure-efi.fd"
+```
+
+This is a temporary work-around, as the `ovmf` package in Proxmox isn't as up-to-date as the one you'd find in Ubuntu (which implies it's not the right answer to this problem). The `/usr/share/kvm/` directory has numerous UEFI and BIOS files to review. Once a more complete solution has been developed this section will be updated with those details.
