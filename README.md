@@ -41,7 +41,11 @@ If you want to update just the `ansible-configs` submodule itself to the latest 
 ```bash
 # Update the ansible-configs submodule
 git submodule update --remote
+```
 
+If you want to pull the role files down locally to use in packer builds:
+
+```bash
 # Run the same command one layer down, within ansible-configs,
 # to pull the latest role files locally for use with packer
 git submodule foreach 'git submodule update --remote'
