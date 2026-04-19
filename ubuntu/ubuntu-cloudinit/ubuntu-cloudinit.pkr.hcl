@@ -29,6 +29,7 @@ source "qemu" "ubuntu-cloudinit" {
 
   output_directory = "${local.output_directory}"
   shutdown_command = "${local.shutdown_command}"
+  shutdown_timeout = "${local.shutdown_timeout}"
   headless         = "${local.headless}"
 
   ssh_password = "${local.ssh_password}"
