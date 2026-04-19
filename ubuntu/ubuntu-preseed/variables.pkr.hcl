@@ -46,6 +46,7 @@ locals {
 
   output_directory = "${var.output_directory}"
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now" # This is echoing the password "packer" over to sudo -S shutdown ...
+  shutdown_timeout = "10m"
   headless         = false                                     # Set to true if you are running Packer on a Linux server without a GUI, if you are connected via SSH, or running a CI/CD workflow
 
   ssh_password = "packer"
