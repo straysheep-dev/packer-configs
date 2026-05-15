@@ -20,6 +20,16 @@ variable "output_directory" {
   type        = string
   description = "This creates an output directory for the build files. Each output directory must be unique per-build."
 }
+variable "cpus" {
+  type        = string
+  default     = "4"
+  description = "Number of vCPU cores assigned to the virtual machine"
+}
+variable "memory" {
+  type        = string
+  default     = "4096"
+  description = "Memory assigned to the virtual machine."
+}
 variable "boot_wait" {
   type        = string
   default     = "10s"
@@ -58,7 +68,7 @@ locals {
     "<f10>"
   ]
   boot_wait          = "${var.boot_wait}"
-  cpus               = "4"
+  cpus               = "${var.cpus}"
   disk_cache         = "unsafe"
   disk_compression   = true
   disk_detect_zeroes = "unmap"
@@ -77,7 +87,7 @@ locals {
     "file://${var.iso_storage_path}",
     "${var.iso_url}"
   ]
-  memory           = "4096"
+  memory           = "${var.memory}"
   output_directory = "${var.output_directory}"
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
   ssh_password     = "packer"

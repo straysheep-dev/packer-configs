@@ -4,6 +4,7 @@ A packer template for building a Debian system with UEFI boot.
 
 Supported build inventory:
 
+- [Debian 13 Server (Trixie)](https://cdimage.debian.org/mirror/cdimage/archive/13.3.0/amd64/iso-cd/)
 - [Debian 12 Server (Bookworm)](https://cdimage.debian.org/mirror/cdimage/archive/12.10.0/amd64/iso-cd/)
 
 Resources used to work on these templates:
@@ -34,7 +35,7 @@ for action in $actions
 do
     packer "$action" \
         -var "iso_storage_path=${HOME}/iso/debian-12.8.0-amd64-netinst.iso" \
-        -var-file="bookworm-server.pkrvars.hcl" \
+        -var-file="debian-12-server.pkrvars.hcl" \
         .
 done
 ```
