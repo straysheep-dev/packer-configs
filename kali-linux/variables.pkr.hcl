@@ -90,13 +90,13 @@ locals {
     "file://${var.iso_storage_path}",
     "${var.iso_url}"
   ]
-  memory             = "4096"
-  output_directory   = "${var.output_directory}"
-  shutdown_command   = "echo 'packer' | sudo -S shutdown -P now"
-  ssh_password       = "packer"
-  ssh_timeout        = "60m"
-  ssh_username       = "kali"
-  vm_name            = "${var.disk_file}"
+  memory           = "4096"
+  output_directory = "${var.output_directory}"
+  shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
+  ssh_password     = "packer"
+  ssh_timeout      = "60m"
+  ssh_username     = "kali"
+  vm_name          = "${var.disk_file}"
 
   playbook_file   = "${var.playbook_file}"
   extra_arguments = "${var.extra_arguments}"
