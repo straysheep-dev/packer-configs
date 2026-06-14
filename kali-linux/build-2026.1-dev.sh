@@ -17,9 +17,9 @@ for action in $actions
 do
     packer "$action" \
         -var vm_hostname="${VM_HOSTNAME}" \
-        -var "iso_storage_path=${HOME}/iso/kali-linux-2025.2-installer-amd64.iso" \
-        -var "iso_checksum=5723d46414b45575aa8e199740bbfde49e5b2501715ea999f0573e94d61e39d3" \
-        -var-file kali-2025.2-headless.pkrvars.hcl \
+        -var "iso_storage_path=${HOME}/iso/kali-linux-2026.1-installer-netinst-amd64.iso" \
+        -var "iso_checksum=caf5ff7d7a4f73c85a6f1688300b936d3d7fd6965c52d80632e36709a09255a7" \
+        -var-file kali-2026.1-dev.pkrvars.hcl \
         -only="kali-linux.qemu.kali-linux" \
         .
 done

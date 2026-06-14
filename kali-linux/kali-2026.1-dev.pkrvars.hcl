@@ -1,15 +1,15 @@
-# kali-2025.1c-wireless.pkrvarc.hcl
+# kali-2026.1-dev.pkrvarc.hcl
 
 disk_file        = "kali-linux"
 vm_hostname      = "kali"
-iso_url          = "https://cdimage.kali.org/kali-2025.2/kali-linux-2025.2-installer-amd64.iso"
-iso_checksum     = "5723d46414b45575aa8e199740bbfde49e5b2501715ea999f0573e94d61e39d3"
-iso_storage_path = "/home/user/iso/kali-linux-2025.2-installer-amd64.iso"
+iso_url          = "https://cdimage.kali.org/kali-2026.1/kali-linux-2026.1-installer-netinst-amd64.iso"
+iso_checksum     = "caf5ff7d7a4f73c85a6f1688300b936d3d7fd6965c52d80632e36709a09255a7"
+iso_storage_path = "/home/user/iso/kali-linux-2026.1-installer-netinst-amd64.iso"
 preseed_file     = "preseed-desktop-xfce.cfg"
 preseed_checksum = "44aac3a666e502d9ec39fecf14d98e73"
-output_directory = "build_kali-linux_wireless"
+output_directory = "build_kali-linux_dev"
 
-playbook_file = "./ansible/kali-wireless.yml"
+playbook_file = "./ansible/kali-dev.yml"
 
 extra_arguments = [
   "--extra-vars",
