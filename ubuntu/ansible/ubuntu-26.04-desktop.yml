@@ -21,9 +21,11 @@
     hostname_string: "packer-devops"
   roles:
     # Uncomment roles to run
-    - role: "../../ansible-configs/configure_systemd_resolved"
+    - role: "../../ansible-configs/install_unbound"
     - role: "../../ansible-configs/build_ubuntu_desktop"
     - role: "../../ansible-configs/configure_networking"
+    - role: "../../ansible-configs/configure_kernel"
+    - role: "../../ansible-configs/configure_ssh"
     - role: "../../ansible-configs/configure_gnupg"
     - role: "../../ansible-configs/configure_microsoft_repos"
     - role: "../../ansible-configs/install_chrome"

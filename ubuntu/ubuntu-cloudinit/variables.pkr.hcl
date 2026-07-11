@@ -37,6 +37,11 @@ variable "inline" {
   type        = list(string)
   description = "An array of shell commands to execute during the build."
 }
+variable "ssh_password" {
+  type        = string
+  default     = "packer"
+  description = ""
+}
 
 locals {
   vm_name = "${var.vm_name}.qcow2"
@@ -63,7 +68,7 @@ locals {
   shutdown_timeout = "10m"
   headless         = false # Set to true if you are running Packer on a Linux server without a GUI, if you are connected via SSH, or running a CI/CD workflow
 
-  ssh_password = "packer"
+  ssh_password = "${var.ssh_password}"
   ssh_username = "user1"
   ssh_timeout  = "60m"
   #ssh_private_key_file = "~/.ssh/id_rsa" # Path to a private key file, you can use ~ in the path string.

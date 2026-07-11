@@ -2,10 +2,10 @@
 
 vm_name = "ubuntu-2604"
 
-iso_url      = "https://releases.ubuntu.com/26.04/ubuntu-26.04-beta-live-server-amd64.iso"
-iso_checksum = "ec11c403e5ee44952f23f21ae3db51c8df15269af68c54ec0e1d4a5991633640"
+iso_url      = "https://releases.ubuntu.com/26.04/ubuntu-26.04-live-server-amd64.iso"
+iso_checksum = "dec49008a71f6098d0bcfc822021f4d042d5f2db279e4d75bdd981304f1ca5d9"
 
-iso_storage_path = "/home/user/iso/ubuntu-26.04-beta-live-server-amd64.iso"
+iso_storage_path = "/home/user/iso/ubuntu-26.04-live-server-amd64.iso"
 
 output_directory = "build_26.04-server"
 
