@@ -60,6 +60,9 @@ A list of resources used to create these templates.
 
 - [Packer QEMU Builder](https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu#basic-example)
 - [Packer QEMU Plugin UEFI Boot](https://github.com/hashicorp/packer-plugin-qemu/issues/97)
+- [Packer Local Variables](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/locals)
+- [Packer Input Variables](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/variables)
+- [Packer Conditional Expressions](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/expressions#conditional-expressions)
 - [Cloud-init Autoinstall Reference](https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html#user-data)
 - [Cloud-init Data Source Syntax](https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#local-filesystem-custom-location)
 - [Cloud-init: Drive with labeled filesystem](https://cloudinit.readthedocs.io/en/latest/reference/datasources/nocloud.html#source-2-drive-with-labeled-filesystem)
@@ -91,9 +94,12 @@ A list of resources used to create these templates.
 
 **Using Packer**
 
-- Use `packer` only for what's necessary
-- Ideally all you use Packer for is the base install and deployment of a machine
-- Handle complex configuration and tasks with tools like Ansible, externally or via the plugin after the build completes
+- The "source" `.pkr.hcl` file is the base file that's the minimum necessary to run a build
+- `locals.pkr.hcl` is for ingesting variables, processing conditionals or expressions, and holding static values that don't change
+- `variables.pkr.hcl` declares anything that can have a modified input
+- `*.pkrvars.hcl` files are where the values for each unique build can exist
+- Use `packer` only for what's necessary (base install and build)
+- Use provisioners like the Ansible or Shell provisioners for complex configuration after the build completes
 - This reduces issues Packer can run into, and makes your templates more portable
 
 
