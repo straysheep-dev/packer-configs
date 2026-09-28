@@ -11,7 +11,7 @@ actions='validate build'
 for action in $actions
 do
     packer "$action" \
-    -var "iso_storage_path=${HOME}/iso/ubuntu-26.04-beta-live-server-amd64.iso" \
+    -var "iso_storage_path=${HOME}/iso/ubuntu-26.04-live-server-amd64.iso" \
     -var-file="26.04-desktop.pkrvars.hcl" \
     .
 done
