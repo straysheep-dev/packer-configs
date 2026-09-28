@@ -22,15 +22,15 @@
   roles:
     # Uncomment roles to run
     - role: "../../ansible-configs/configure_systemd_resolved"
-    - role: "../../ansible-configs/build_ubuntu_desktop"
+#    - role: "../../ansible-configs/build_ubuntu_desktop"
     - role: "../../ansible-configs/configure_networking"
     - role: "../../ansible-configs/configure_kernel"
     - role: "../../ansible-configs/configure_ssh"
     - role: "../../ansible-configs/configure_gnupg"
     - role: "../../ansible-configs/configure_microsoft_repos"
     - role: "../../ansible-configs/install_chrome"
-    - role: "../../ansible-configs/install_powershell"
-    #- role: "../../ansible-configs/install_auditd"
+#    - role: "../../ansible-configs/install_powershell"  # powershell-preview only in 26.04 for now
+#    - role: "../../ansible-configs/install_auditd"
     - role: "../../ansible-configs/install_sysmon"
     - role: "../../ansible-configs/install_vscode"
     - role: "../../ansible-configs/install_ykman"
